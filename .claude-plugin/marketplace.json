@@ -1,0 +1,15 @@
+{
+  "name": "shincheolhui-plugins",
+  "owner": {
+    "name": "shincheolhui",
+    "email": "shinchulhee0614@gmail.com"
+  },
+  "description": "shincheolhui 의 Claude Code 플러그인 모음",
+  "plugins": [
+    {
+      "name": "work-lifecycle",
+      "source": "./plugins/work-lifecycle",
+      "description": "작업 전·중·후 라이프사이클 절차 — 요청 분류, 워크트리·브랜치 규율, 이슈 추적, 커밋·push, 검증·머지·종료"
+    }
+  ]
+}

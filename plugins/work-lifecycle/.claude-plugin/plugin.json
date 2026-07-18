@@ -1,0 +1,12 @@
+{
+  "name": "work-lifecycle",
+  "displayName": "Work Lifecycle",
+  "description": "작업 전·중·후 라이프사이클 절차를 모든 세션에 강제하는 skill. 착수 신호 인식, 규모 판정, 워크트리·브랜치 규율, 이슈 추적 시점, 커밋·push 규율, 검증·머지·종료 절차.",
+  "version": "1.0.0",
+  "author": {
+    "name": "shincheolhui",
+    "email": "shinchulhee0614@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["workflow", "git", "worktree", "issue-tracking", "lifecycle"]
+}
