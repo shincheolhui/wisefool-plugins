@@ -1,14 +1,14 @@
-# shincheolhui-plugins
+# wisefool-plugins
 
-shincheolhui 의 Claude Code 플러그인 마켓플레이스.
+wisefool 의 Claude Code 플러그인 마켓플레이스.
 
 ## 설치
 
 Claude Code 안에서:
 
 ```
-/plugin marketplace add shincheolhui/shincheolhui-plugins
-/plugin install work-lifecycle@shincheolhui-plugins
+/plugin marketplace add shincheolhui/wisefool-plugins
+/plugin install work-lifecycle@wisefool-plugins
 ```
 
 ## 플러그인 목록
@@ -29,7 +29,7 @@ Claude Code 안에서:
 ## 업데이트
 
 ```
-/plugin marketplace update shincheolhui-plugins
+/plugin marketplace update wisefool-plugins
 ```
 
 ## 라이선스

@@ -1,10 +1,10 @@
 {
-  "name": "shincheolhui-plugins",
+  "name": "wisefool-plugins",
   "owner": {
-    "name": "shincheolhui",
+    "name": "wisefool",
     "email": "shinchulhee0614@gmail.com"
   },
-  "description": "shincheolhui 의 Claude Code 플러그인 모음",
+  "description": "wisefool 의 Claude Code 플러그인 모음",
   "plugins": [
     {
       "name": "work-lifecycle",
