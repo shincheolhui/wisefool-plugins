@@ -1,6 +1,6 @@
 ---
 name: work-lifecycle
-description: 작업 전·중·후 라이프사이클 절차 준수. 변경 작업 착수 신호("진행합시다", "구현해주세요", "고쳐주세요", "만들어주세요", "작업 시작"), 워크트리/브랜치 생성, 이슈 착수, 커밋·push, 머지 요청("머지", "완료 처리", "마무리"), 작업 종료 시 자동 활성화. 조사·질문 턴에는 발동하지 않되, 조사 결과에 대해 사용자가 진행을 결정하는 순간 활성화.
+description: 작업 전·중·후 라이프사이클 절차 준수. 변경 작업 착수 신호("진행합시다", "구현해주세요", "고쳐주세요", "만들어주세요", "작업 시작" / "let's proceed", "go ahead", "implement it", "fix it", "build it", "start working"), 워크트리/브랜치 생성, 이슈 착수, 커밋·push, 머지 요청("머지", "완료 처리", "마무리" / "merge it", "wrap up", "finish it"), 작업 종료 시 자동 활성화. 조사·질문 턴에는 발동하지 않되, 조사 결과에 대해 사용자가 진행을 결정하는 순간 활성화. Activates on work-kickoff and merge/close signals in any language; does not fire on questions or investigation-only turns.
 ---
 
 # 작업 라이프사이클 절차 (work-lifecycle)
