@@ -1,8 +1,7 @@
 {
   "name": "wisefool-plugins",
   "owner": {
-    "name": "wisefool",
-    "email": "shinchulhee0614@gmail.com"
+    "name": "wisefool"
   },
   "description": "wisefool 의 Claude Code 플러그인 모음",
   "plugins": [
