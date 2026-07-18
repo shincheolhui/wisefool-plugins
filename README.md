@@ -44,10 +44,14 @@ An **opinionated** work-lifecycle skill that enforces a before / during / after 
 No command to run — the skill **activates automatically**:
 
 - Ask a question ("why is this failing?") → investigation and a report only; no files touched.
-- Give a kickoff signal ("go ahead", "implement it", "진행합시다") → the skill walks through the *before* steps: fetch → worktree + branch → plan sized to the task → create/start the tracker issue → rename the branch with the issue key.
-- Ask to finish ("merge it", "wrap up", "머지") → the *after* steps: test gate → real e2e verification → docs sync → `--no-ff` merge titled with the issue key → close the issue → remove the worktree, keep the branch.
+- Give a kickoff signal ("go ahead", "implement it") → the skill walks through the *before* steps: fetch → worktree + branch → plan sized to the task → create/start the tracker issue → rename the branch with the issue key.
+- Ask to finish ("merge it", "wrap up") → the *after* steps: test gate → real e2e verification → docs sync → `--no-ff` merge titled with the issue key → close the issue → remove the worktree, keep the branch.
 
-To invoke it explicitly: `/work-lifecycle:work-lifecycle`.
+Signals are recognized in **any language**. To invoke the skill explicitly: `/work-lifecycle:work-lifecycle`.
+
+Worktrees are created inside your repository (by default under `.claude/worktrees/`) and removed after the merge — the **branch is always kept** as a rollback point.
+
+The summary above is only the skeleton. The full procedure — task-sizing table (tiny/small/medium/large and what plan each requires), multi-issue branching rules, backlog capture for side-findings — is in [SKILL.md](plugins/work-lifecycle/skills/work-lifecycle/SKILL.md).
 
 **Project adapter** — define project-specific values in your project's `CLAUDE.md` and the skill will use them (all optional; defaults apply when absent):
 
@@ -66,10 +70,20 @@ If your project has its own canonical procedure document, state it in `CLAUDE.md
 
 This plugin contains **no executable code** — no hooks, no scripts, no MCP servers. It is a single markdown skill file that only adds instructions to the model.
 
-### Update
+### Troubleshooting
+
+| Symptom | Cause / fix |
+|---|---|
+| Skill does not activate right after install | Plugins load at session start — restart the Claude Code session |
+| Project already has its own workflow skill or procedure document | They coexist; the project's canonical document takes precedence over this skill (state it in `CLAUDE.md`) |
+| Issue steps do nothing | No issue tracker is connected — connect one (e.g. Atlassian/GitHub plugin + `/mcp` auth) or let it fall back to todo lists |
+| Want to pause it temporarily | `/plugin disable work-lifecycle`, re-enable with `/plugin enable work-lifecycle` |
+
+### Update / Uninstall
 
 ```
 /plugin marketplace update wisefool-plugins
+/plugin uninstall work-lifecycle
 ```
 
 ---
@@ -115,7 +129,11 @@ Claude Code 안에서:
 - 착수 신호("진행합시다", "구현해주세요")를 주면 → *작업 전* 절차를 밟습니다: fetch → 워크트리+브랜치 → 규모별 계획 → 트래커 이슈 생성·착수 → 브랜치명에 이슈 키 rename.
 - 마무리 요청("머지", "완료 처리")을 하면 → *작업 후* 절차: 테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 이슈 키 제목의 `--no-ff` 머지 → 이슈 완료 → 워크트리만 제거(브랜치 보존).
 
-명시적으로 부르려면: `/work-lifecycle:work-lifecycle`.
+신호는 **언어 불문** 인식됩니다. 명시적으로 부르려면: `/work-lifecycle:work-lifecycle`.
+
+워크트리는 저장소 안(기본 `.claude/worktrees/` 하위)에 생성되고 머지 후 제거됩니다 — **브랜치는 항상 보존**되어 롤백 지점으로 남습니다.
+
+위 요약은 골격만입니다. 전체 절차 — 규모 판정표(잔손질/소형/중형/대형과 각각의 계획 형태), 복수 이슈 처리 규칙, 곁가지 백로그 캐처 — 는 [SKILL.md](plugins/work-lifecycle/skills/work-lifecycle/SKILL.md) 에 있습니다.
 
 **프로젝트 어댑터** — 프로젝트의 `CLAUDE.md` 에 아래처럼 정의하면 skill 이 읽어서 적용합니다 (전부 선택 사항, 없으면 기본값):
 
@@ -134,10 +152,20 @@ Claude Code 안에서:
 
 이 플러그인에는 **실행 코드가 없습니다** — hook·스크립트·MCP 서버 없이 마크다운 skill 파일 1개뿐이며, 모델에 지침만 추가합니다.
 
-### 업데이트
+### 문제 해결
+
+| 증상 | 원인 / 해결 |
+|---|---|
+| 설치 직후 skill 이 활성화되지 않음 | 플러그인은 세션 시작 시 로드됩니다 — Claude Code 세션을 재시작하세요 |
+| 프로젝트에 이미 자체 워크플로 skill·절차 문서가 있음 | 공존합니다. 프로젝트 자체 정본 문서가 이 skill 보다 우선합니다 (`CLAUDE.md` 에 명시) |
+| 이슈 단계가 동작하지 않음 | 이슈 트래커 미연결 — 연결(Atlassian/GitHub 플러그인 + `/mcp` 인증)하거나 Todo 대체로 사용 |
+| 일시적으로 끄고 싶음 | `/plugin disable work-lifecycle`, 다시 켜려면 `/plugin enable work-lifecycle` |
+
+### 업데이트 / 제거
 
 ```
 /plugin marketplace update wisefool-plugins
+/plugin uninstall work-lifecycle
 ```
 
 ---
