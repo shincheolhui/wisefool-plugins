@@ -8,12 +8,33 @@ An **opinionated** Claude Code skill that enforces a before / during / after wor
 
 ## English
 
+### Why
+
+Working with an AI coding agent without a fixed procedure tends to fail in the same ways:
+
+- Work happens directly on `main` and collides with other sessions or teammates
+- "Done" gets declared on mock/unit tests alone — and the feature doesn't actually work
+- Commits carry no issue reference, so months later nobody knows why a change was made
+- Every session improvises a different process, so quality depends on the day
+- Bugs and ideas discovered mid-task get buried in the conversation and lost
+
+This skill turns each of those into a guarantee, one for one:
+
+- An **isolated worktree per task** — `main` stays clean, sessions never collide
+- A **real end-to-end verification gate** — mock-only sign-off is forbidden
+- **Issue-keyed** branches, commits and merge titles — `git log --oneline` reads as an issue index
+- The **same before / during / after procedure** in every session
+- Side-findings are **captured to the backlog immediately**, without derailing the current task
+
 ### What it does
 
-- **Request triage** — questions and investigations get report-only responses; work starts only on an explicit kickoff signal ("go ahead", "implement it"), with a tiny-fix exception
-- **Before** — sync main → worktree + branch → plan by size (todo / plan / spec) → issue-creation timing rule → rename branch with the issue key
-- **During** — commit in meaningful units, stage only your own files, push every commit, log decisions as issue comments, capture side-findings to the backlog immediately
-- **After** — test gate → real end-to-end verification (no mock-only sign-off) → docs sync → `--no-ff` merge titled with the issue key → close the issue → remove the worktree but keep the branch
+**Triage — every turn starts here.** Questions and investigations get report-only responses; no files are touched. Work begins only on an explicit kickoff signal ("go ahead", "implement it"). Tiny fixes (typos, a few lines) may skip the ceremony.
+
+**Before — set up so nothing collides.** Fetch → worktree + branch off main → plan sized to the task (todo list / plan document / brainstorming→spec→plan) → create the tracker issue right after the plan is fixed — *so the issue carries an accurate title, scope and plan link, and exists before any real change happens* → rename the branch with the issue key.
+
+**During — leave a trail.** Commit in meaningful units and stage only your own files (other sessions may share the repository). Push every commit — *backup against local loss, visibility from other machines, automatic tracker linking*. Record decisions and surprises as issue comments. Capture unrelated findings to the backlog immediately.
+
+**After — prove it, then merge.** Run the project's test gate → verify by actually running the thing (*passing tests ≠ working software*) → sync docs → `--no-ff` merge with the issue key in the title → close the issue → remove the worktree but **keep the branch** — *it is history and a rollback point*.
 
 ### Install
 
@@ -60,6 +81,25 @@ The summary above is only the skeleton. The full procedure — task-sizing table
 
 If your project has its own canonical procedure document, state it in `CLAUDE.md` — that document **takes precedence** over this skill.
 
+### Example session
+
+```text
+You:    Why does login keep failing?
+Claude: (investigates and reports findings — no files touched)
+
+You:    Fix it.
+Claude: git fetch → worktree + branch fix/login-timeout
+        → plan (small task → todo list)
+        → creates issue ABC-12 in the tracker, moves it to In Progress
+        → renames the branch to fix/ABC-12-login-timeout
+        → implements; commits "fix: … (ABC-12)"; pushes every commit
+
+You:    Merge it.
+Claude: runs the test gate → performs one real login to verify end to end
+        → updates the docs → merge --no-ff "Merge: ABC-12 fix login timeout"
+        → closes ABC-12 → removes the worktree, keeps the branch
+```
+
 ### Security
 
 This plugin contains **no executable code** — no hooks, no scripts, no MCP servers. It is a single markdown skill file that only adds instructions to the model.
@@ -94,12 +134,33 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## 한국어
 
+### 왜 필요한가
+
+절차 없이 AI 코딩 에이전트와 작업하면 같은 방식으로 실패하곤 합니다:
+
+- `main` 에서 직접 작업 → 다른 세션·동료의 작업과 뒤섞임
+- mock·단위 테스트만 통과하고 "완료" 선언 → 실제로는 동작하지 않음
+- 커밋에 이슈 연결이 없음 → 몇 달 뒤 왜 바꿨는지 아무도 모름
+- 세션마다 절차를 즉흥으로 만듦 → 품질이 그날그날 복불복
+- 작업 중 발견한 버그·아이디어가 대화 속에 묻혀 유실
+
+이 skill 은 그 각각을 1:1 로 보장으로 바꿉니다:
+
+- 작업마다 **격리된 워크트리** — `main` 은 항상 깨끗, 세션 간 충돌 없음
+- **실제 실행 e2e 검증 게이트** — mock 만으로 완료 선언 금지
+- 브랜치·커밋·머지 제목에 **이슈 키** — `git log --oneline` 이 이슈 목차가 됨
+- 모든 세션이 **동일한 전·중·후 절차**
+- 곁가지는 **즉시 백로그로 캐처** — 현재 작업 흐름을 끊지 않음
+
 ### 무엇을 하는가
 
-- **요청 분류** — 질문·조사는 보고만, 착수 신호("진행합시다" 등)에만 작업 진입, 잔손질 예외
-- **작업 전** — main 최신화 → 워크트리+브랜치 → 규모별 계획(Todo/plan/spec) → 이슈 생성 시점 규칙 → 브랜치명에 이슈 키 rename
-- **작업 중** — 의미 단위 커밋, 내 파일만 개별 스테이징, 매 커밋 push, 특이사항 이슈 댓글, 곁가지 즉시 백로그 캐처
-- **작업 후** — 테스트 게이트 → 실제 실행 e2e 검증(mock 금지) → 문서 동기화 → `--no-ff` 머지(이슈 키 제목) → 이슈 완료 → 워크트리만 제거(브랜치 보존)
+**분류 — 모든 턴의 시작.** 질문·조사는 보고만 하고 파일을 건드리지 않습니다. 명시적 착수 신호("진행합시다", "구현해주세요")에만 작업에 진입합니다. 잔손질(오탈자·수 줄)은 절차를 생략할 수 있습니다.
+
+**작업 전 — 충돌하지 않게 준비.** fetch → main 기반 워크트리+브랜치 → 규모별 계획(Todo 목록 / plan 문서 / 브레인스토밍→spec→plan) → **계획 확정 직후** 트래커 이슈 생성 — *정확한 제목·범위·plan 링크를 담고, 실질 변경 전에 "진행 중" 기록을 남기기 위해* → 브랜치명에 이슈 키 rename.
+
+**작업 중 — 흔적을 남기며.** 의미 단위 커밋, 내 작업 파일만 개별 스테이징(같은 저장소를 다른 세션이 쓸 수 있으므로). 매 커밋 push — *로컬 유실 대비 + 외부 기기 가시성 + 트래커 자동 연동*. 설계 결정·예상 밖 동작은 이슈 댓글로 기록. 무관한 발견은 즉시 백로그로.
+
+**작업 후 — 증명하고 머지.** 프로젝트 테스트 게이트 실행 → 실제로 돌려서 검증(*테스트 통과 ≠ 실제 동작*) → 문서 동기화 → 이슈 키 제목의 `--no-ff` 머지 → 이슈 완료 → 워크트리만 제거하고 **브랜치는 보존** — *이력이자 롤백 지점이므로*.
 
 ### 설치
 
@@ -145,6 +206,25 @@ See [CHANGELOG.md](CHANGELOG.md).
 ```
 
 프로젝트에 자체 절차 정본 문서가 있으면 `CLAUDE.md` 에 그 사실을 명시하세요 — 그 문서가 이 skill 보다 **우선**합니다.
+
+### 사용 예시
+
+```text
+사용자:  로그인이 왜 계속 실패하죠?
+Claude:  (조사 후 원인 보고만 — 파일 무변경)
+
+사용자:  고쳐주세요.
+Claude:  git fetch → 워크트리+브랜치 fix/login-timeout
+         → 계획 수립 (소형 → Todo 목록)
+         → 트래커에 이슈 ABC-12 생성, "진행 중" 전환
+         → 브랜치를 fix/ABC-12-login-timeout 으로 rename
+         → 구현 — "fix: … (ABC-12)" 의미 단위 커밋 + 매 커밋 push
+
+사용자:  머지해주세요.
+Claude:  테스트 게이트 실행 → 실제 로그인 1회로 e2e 검증
+         → 문서 갱신 → merge --no-ff "Merge: ABC-12 로그인 타임아웃 수정"
+         → ABC-12 완료 전환 → 워크트리 제거, 브랜치 보존
+```
 
 ### 보안
 
