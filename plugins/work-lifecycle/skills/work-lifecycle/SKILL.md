@@ -3,111 +3,111 @@ name: work-lifecycle
 description: 작업 전·중·후 라이프사이클 절차 준수. 변경 작업 착수 신호("진행합시다", "구현해주세요", "고쳐주세요", "만들어주세요", "작업 시작" / "let's proceed", "go ahead", "implement it", "fix it", "build it", "start working"), 워크트리/브랜치 생성, 이슈 착수, 커밋·push, 머지 요청("머지", "완료 처리", "마무리" / "merge it", "wrap up", "finish it"), 작업 종료 시 자동 활성화. 조사·질문 턴에는 발동하지 않되, 조사 결과에 대해 사용자가 진행을 결정하는 순간 활성화. Activates on work-kickoff and merge/close signals in any language; does not fire on questions or investigation-only turns.
 ---
 
-# 작업 라이프사이클 절차 (work-lifecycle)
+# Work Lifecycle Procedure (work-lifecycle)
 
-모든 작업(기능·버그·리서치·리팩토링·문서·운영)이 따르는 공통 절차.
-**이 skill 은 범용 골격이다.** 프로젝트별 값(이슈 트래커, 검증 명령, 도메인 불변)은 아래 "프로젝트 어댑터" 규칙에 따라 **그 프로젝트의 CLAUDE.md 에서 읽는다.** 프로젝트에 자체 정본 문서(예: `docs/ops/work-lifecycle.md`)가 있으면 **그 문서가 이 skill 보다 우선한다** — 반드시 먼저 Read 하고 그 절차를 따른다.
+The common procedure that every task follows — features, bugs, research, refactors, documentation, operations.
+**This skill is a generic skeleton.** Project-specific values (issue tracker, verification commands, domain invariants) are **read from that project's CLAUDE.md**, per the "Project adapter" rules below. If the project has its own canonical procedure document (e.g. `docs/ops/work-lifecycle.md`), **that document takes precedence over this skill** — Read it first and follow its procedure.
 
-## 프로젝트 어댑터 — CLAUDE.md 에서 확인할 것
+## Project adapter — what to check in CLAUDE.md
 
-skill 활성화 시 프로젝트 CLAUDE.md 에서 다음을 확인한다. 정의가 없으면 괄호의 기본값으로 동작한다.
+On activation, check the project's CLAUDE.md for the following. When a key is undefined, operate on the default in the right-hand column.
 
-| 항목 | 프로젝트가 정의할 것 | 미정의 시 기본값 |
+| Item | What the project defines | Default when undefined |
 |---|---|---|
-| 이슈 트래커 | 종류(Jira/GitHub Issues 등)·프로젝트 키·상태 전환 방법 | 이슈 단계 생략, 작업 목록(Todo)으로 대체 |
-| 테스트 게이트 | 커밋·머지 전 실행할 테스트 명령 | 프로젝트 표준 테스트 러너 1회 실행 |
-| 문서 게이트 | 문서 동기화 대상·점검 명령 | 변경 기능의 사용자 문서만 확인 |
-| 커밋 컨벤션 | 언어·형식·접두사 규칙 | Conventional Commits (`fix:`, `feat:`, …) |
-| 도메인 불변 | 위반 금지 원칙 (예: 특정 로직 무단 변경 금지) | 없음 |
+| Issue tracker | Type (Jira / GitHub Issues / …), project key, how to transition status | Skip the issue steps; substitute a todo list |
+| Test gate | Test commands to run before commit and merge | Run the project's standard test runner once |
+| Docs gate | Which documents must stay in sync, and any check command | Check only the user-facing docs of the changed feature |
+| Commit convention | Language, format, prefix rules | Conventional Commits (`fix:`, `feat:`, …) |
+| Domain invariants | Principles that must never be violated (e.g. never change specific logic unasked) | None |
 
-## 용어와 판정 기준
+## Terms and criteria
 
-### 작업 규모 판정표
+### Task size table
 
-| 규모 | 판정 기준 | 계획 형태 | 이슈 |
+| Size | Criteria | Plan form | Issue |
 |---|---|---|---|
-| **잔손질** | 오탈자·주석·수 줄 수정. 설계 판단 없음, 동작 변화 없음(또는 자명) | 없음 | **생략** |
-| **소형** | 변경 범위가 처음부터 명확. 설계 결정 없음 | Todo 목록 | 생성 |
-| **중형** | 다단계 구현이지만 접근 방법이 자명 | plan 문서 | 생성 |
-| **대형** | 요구사항·설계 자체를 탐색해야 함 | 브레인스토밍 → spec → plan | 생성 |
+| **Trivial** | Typos, comments, a few lines. No design judgment, no behavior change (or an obvious one) | None | **Skipped** |
+| **Small** | Scope is clear from the outset. No design decisions | Todo list | Created |
+| **Medium** | Multi-step implementation, but the approach is self-evident | Plan document | Created |
+| **Large** | The requirements or the design themselves must be explored | Brainstorm → spec → plan | Created |
 
-- 판정이 모호하면 **한 단계 위**로 취급한다.
+- When the judgment is ambiguous, treat it as **one size up**.
 
-### 착수 신호
+### Kickoff signal
 
-사용자의 명시적 진행 의사 표현 — "진행합시다", "구현해주세요", "고쳐주세요", "만들어주세요" 등.
-질문·조사·판단 요청("왜 이래요?", "가능해요?", "어떻게 생각해요?")은 착수 신호가 **아니다**.
+An explicit statement of the user's intent to proceed — "go ahead", "implement it", "fix it", "build it", and the like.
+Questions, investigation, and requests for judgment ("why is this happening?", "is it possible?", "what do you think?") are **not** kickoff signals.
 
-### 실질 작업 행위 (이슈 생성 데드라인의 기준)
+### Substantive work action (the deadline for creating the issue)
 
-다음 중 첫 번째로 발생하는 것: ① 구현 변경(제품 코드·설정·정본 문서) ② 시스템 상태 변경(배포, DB 조작, 외부 서비스 설정) ③ 장시간 실험·리서치 실행 시작.
-Todo 작성·spec/plan 문서 작성은 실질 작업 행위가 **아니다** (계획 산출물).
+Whichever of these happens first: ① an implementation change (product code, configuration, canonical documents) ② a system state change (deployment, DB operations, external service settings) ③ the start of a long-running experiment or research run.
+Writing todos or spec/plan documents is **not** a substantive work action (they are planning artifacts).
 
-## 0. 요청 분류 (모든 턴의 시작)
+## 0. Triage (the start of every turn)
 
-| 요청 성격 | 처리 |
+| Nature of the request | Handling |
 |---|---|
-| 질문·조사·원인 분석·가능성 판단 | 워크트리·이슈 **없이** read-only 조사 후 **보고만**. 파일 변경 없음. 수정안이 보여도 착수 신호 전에는 손대지 않는다 |
-| 착수 신호 수신 | **1. 작업 전** 절차 진입 |
-| 잔손질 | 이슈·계획 생략. 단독 세션·비충돌이면 main 직접 커밋 허용, 동시작업 정황이면 워크트리 사용 |
-| 작업 중 발견한 곁가지(버그·아이디어) | 지금 작업을 멈추지 말고 백로그로 즉시 캐처 (2.5) |
+| Question, investigation, root-cause analysis, feasibility judgment | Read-only investigation **without** a worktree or issue, then **report only**. No file changes. Even when a fix is apparent, do not touch it before a kickoff signal |
+| Kickoff signal received | Enter **1. Before work** |
+| Trivial fix | Skip the issue and the plan. Committing directly on main is allowed when working alone with no risk of collision; use a worktree if concurrent work is in play |
+| Side-finding during work (bug, idea) | Do not stop the current task — capture it to the backlog immediately (2.5) |
 
-## 1. 작업 전 (착수 준비) — 순서 고정
+## 1. Before work (kickoff preparation) — fixed order
 
-1. **main 최신화:** `git fetch origin` (워크트리 생성 전 필수).
-2. **워크트리 + 브랜치 생성:** main 기반 워크트리에서 작업. main 워킹트리는 항상 깨끗하게 유지.
-3. **임시 브랜치명:** `<접두사>/<kebab-case-작업명>` — `feature/`(기능) · `fix/`(결함) · `refactor/`(동작 불변) · `docs/`(문서) · `chore/`(잡무).
-4. **사전 Read + skill 활성화:** 프로젝트 CLAUDE.md 의 작업 성격별 참조 문서를 명시적으로 Read.
-5. **계획 수립:** 규모 판정표대로 (Todo / plan / 브레인스토밍→spec→plan).
-6. **이슈 생성** (트래커가 정의된 경우):
-   - **시점:** 계획 확정 직후 지체 없이 — 늦어도 첫 **실질 작업 행위** 전.
-   - 계획이 세션을 넘길 만큼 긴 대형 작업은 착수 시점에 먼저 생성 (계획 중 세션이 끊겨도 "진행 중" 기록이 남게).
-   - 백로그에 이미 캐처된 이슈면 새로 만들지 않고 "진행 중" 전환 + 설명 갱신.
-   - 제목은 비개발자 용어·결과 중심, 설명에 무엇을·왜 + 브랜치명 + plan 경로.
-7. **브랜치 키 rename:** 이슈 생성 직후 `git branch -m <접두사>/<이슈키>-<작업명>`. 브랜치 키는 **착수 이슈 키 1개만** (에픽·복수 키 금지).
-   - 계획이 복수 이슈를 낳으면: 순차 단계=부모+하위이슈(부모 키) / 독립 작업=첫 작업만 착수·나머지 백로그 / 구현 중 발견=현재 이슈 범위 축소+새 백로그 이슈.
+1. **Bring main up to date:** `git fetch origin` (required before creating the worktree).
+2. **Create the worktree and branch:** work in a worktree based on main. Keep the main working tree clean at all times. If the harness provides a worktree tool (e.g. `EnterWorktree`), use it and take its default location; otherwise create one under `.claude/worktrees/` — `git worktree add .claude/worktrees/<branch-name> -b <branch-name> origin/main`.
+3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores).
+4. **Pre-reads + skill activation:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work.
+5. **Plan:** as prescribed by the task size table (todo / plan / brainstorm→spec→plan).
+6. **Create the issue** (when a tracker is defined):
+   - **Timing:** immediately once the plan is confirmed — at the latest, before the first **substantive work action**.
+   - For a large task whose planning may outlive the session, create it at kickoff (so an "in progress" record survives even if the session is cut short mid-plan).
+   - If the item is already captured in the backlog, do not create a new one — transition it to "in progress" and refresh the description.
+   - Title in non-developer terms, outcome-focused; the description carries what and why, plus the branch name and the plan path.
+7. **Rename the branch with the key:** right after creating the issue, `git branch -m <prefix>/<issue-key>-<task-name>`. A branch carries **exactly one key** — the kickoff issue's (no epics, no multiple keys).
+   - When planning yields multiple issues: sequential stages = parent + subtasks (parent key) / independent tasks = start only the first and backlog the rest / discovered mid-implementation = narrow the current issue's scope and file a new backlog issue.
 
-## 2. 작업 중 (구현)
+## 2. During work (implementation)
 
-1. **커밋 규율:** 의미 단위별 커밋 (bisect 가능하게). 메시지는 프로젝트 커밋 컨벤션, 제목 끝에 `(이슈키)`.
-2. **스테이징 규율:** 광역 `git add .`/`-A` **금지** — 내 작업 파일만 경로 지정 개별 스테이징. 커밋 직전 `git status` 로 staged 가 전부 내 파일인지 확인 (다른 세션과 동시작업 대비).
-3. **원격 push:** 첫 push 는 이슈 키 rename **후** (`git push -u origin <브랜치>`). 이후 **매 커밋 push** (유실 대비 + 외부 가시성).
-4. **특이사항 → 이슈 댓글:** 설계 결정·예상 밖 동작·중간 측정치·막힘을 즉시 기록.
-5. **곁가지 즉시 캐처:** 무관한 버그·아이디어는 흐름을 멈추지 말고 백로그 이슈로 던진 뒤 복귀. 캐처는 이슈 시점 규칙의 대상이 아니다 (착수가 아니라 기록).
-6. **도메인 불변 준수:** 프로젝트 CLAUDE.md 가 금지한 변경(무단 가드 추가 등)은 하지 않는다. 필요하다고 판단되면 먼저 제안하고 동의받는다.
+1. **Commit discipline:** one commit per meaningful unit (keep it bisectable). Messages follow the project's commit convention, with `(issue-key)` at the end of the subject.
+2. **Staging discipline:** blanket `git add .` / `-A` is **forbidden** — stage only your own files, individually, by path. Run `git status` right before committing to confirm that everything staged is yours (in case another session is working concurrently).
+3. **Push to the remote:** the first push comes **after** the issue-key rename (`git push -u origin <branch>`). From then on, push **on every commit** (loss protection + external visibility). In a local-only repository with no remote, the push steps are skipped and every other rule applies unchanged.
+4. **Notable findings → issue comments:** record design decisions, unexpected behavior, interim measurements, and blockers as they happen.
+5. **Capture side-findings immediately:** file unrelated bugs and ideas as backlog issues without breaking your flow, then return. A capture is not subject to the issue-timing rule (it is a record, not a kickoff).
+6. **Honor domain invariants:** do not make changes the project's CLAUDE.md forbids (adding guards unasked, and so on). If you judge one to be genuinely necessary, propose it and obtain consent first.
 
-## 3. 작업 후 (검증 → 머지 → 종료)
+## 3. After work (verify → merge → close)
 
-1. **테스트 게이트:** 프로젝트 정의 테스트·회귀 명령 실행. 실패 시 해당 커밋 revert 후 재작업.
-2. **실제 실행 e2e 검증:** mock/단위 테스트 통과만으로 "완료" 판정 **금지**. UI 는 실화면 확인(+사용자 눈 확인 요청), API 는 실요청 1회, CLI 는 실행 1회, 외부 연동은 실호출 1회.
-3. **문서 동기화:** 영향받는 문서 갱신 + 프로젝트 문서 게이트 실행.
-4. **머지 (사용자 확인 후):** 머지 여부·방식은 사용자와 결정.
+1. **Test gate:** run the project's defined test and regression commands. On failure, revert the offending commit and rework.
+2. **Real end-to-end verification:** declaring "done" on passing mock/unit tests alone is **forbidden**. UI: check the real screen (and ask the user to confirm with their own eyes); API: one real request; CLI: one real run; external integration: one real call.
+3. **Docs sync:** update the affected documents and run the project's docs gate.
+4. **Merge (after user confirmation):** whether and how to merge is decided with the user.
    ```bash
-   git pull origin main && git merge --no-ff <작업브랜치>
-   # 테스트 재확인 후
+   git pull origin main && git merge --no-ff <work-branch>
+   # after re-confirming the tests
    git push origin main
    ```
-   머지 커밋 제목은 **이슈 키 + 요약**: `Merge: <이슈키> <제목>` (main 히스토리에서 이슈 역추적 가능하게). 충돌 시 워크트리에서 main 을 역머지(rebase 금지)해 해소 후 재시도.
-5. **이슈 종료:** 결과 요약 댓글(비개발자 용어 + 커밋 해시) → 상태 완료 전환.
-6. **메모리/기록 동기화:** 남길 교훈(사고·발견·피드백)이 있으면 프로젝트 메모리·문서에 기록.
-7. **워크트리 정리 (브랜치 보존):** `git worktree remove <경로>` 로 **워크트리만 제거**. 브랜치는 로컬·원격 모두 보존 (이력·롤백 지점).
+   The merge commit title is **issue key + summary**: `Merge: <issue-key> <title>` (so issues remain traceable from main's history). On conflict, resolve it by reverse-merging main into the work branch (never rebase), then retry.
+5. **Close the issue:** post a result-summary comment (non-developer terms + commit hashes), then transition the status to done.
+6. **Sync memory and records:** if there are lessons worth keeping (incidents, findings, feedback), record them in the project's memory and documents.
+7. **Clean up the worktree (keep the branch):** `git worktree remove <path>` removes **only the worktree**. The branch is kept both locally and on the remote (history and rollback point).
 
-## 핵심 불변 (요약)
+## Core invariants (summary)
 
-- main 에서 직접 작업하지 않는다 (잔손질 예외는 0. 분류 기준).
-- 다른 세션의 워크트리·브랜치는 건드리지 않는다.
-- 이슈 시점 규칙은 **착수 이슈에만** 적용 — 백로그 캐처는 발견 즉시.
-- 브랜치 키는 항상 1개. 머지 후 브랜치는 보존, 워크트리만 제거.
+- Never work directly on main (the trivial-fix exception is defined in 0. Triage).
+- Never touch another session's worktree or branch.
+- The issue-timing rule applies **only to the kickoff issue** — backlog captures happen the moment they are found.
+- A branch always carries exactly one key. After merging, the branch is kept and only the worktree is removed.
 
-## 전체 체크리스트
+## Full checklist
 
 ```
-[분류]     질문·조사 → 보고만. 착수 신호 수신 시에만 아래 진행. 잔손질 → 이슈 생략 가능
-[작업 전]  fetch → 워크트리(main 기반) → 임시 브랜치명 → 사전 Read → 계획(규모별)
-           → 이슈 생성+진행 중 (계획 확정 직후, 첫 실질 작업 행위 전) → 브랜치 키 rename
-[작업 중]  의미 단위 커밋(내 파일만 개별 스테이징) → 첫 push 는 rename 후, 이후 매 커밋 push
-           → 특이사항 이슈 댓글 → 곁가지 즉시 캐처
-[작업 후]  테스트 게이트 → e2e 실검증(mock 금지) → 문서 동기화
-           → (사용자 확인) 머지 --no-ff "Merge: <이슈키> <제목>" + push
-           → 이슈 완료 → 기록 동기화 → 워크트리만 제거 (브랜치 보존)
+[Triage]  Question/investigation → report only. Proceed below only on a kickoff signal. Trivial → the issue may be skipped
+[Before]  fetch → worktree (based on main) → temporary branch name → pre-reads → plan (by size)
+          → create issue + in progress (right after the plan is confirmed, before the first substantive action) → rename branch with the key
+[During]  meaningful-unit commits (stage only your own files, individually) → first push after the rename, then push on every commit
+          → notable findings as issue comments → capture side-findings immediately
+[After]   test gate → real e2e verification (never mock-only) → docs sync
+          → (user confirmation) merge --no-ff "Merge: <issue-key> <title>" + push
+          → close the issue → sync records → remove only the worktree (keep the branch)
 ```
