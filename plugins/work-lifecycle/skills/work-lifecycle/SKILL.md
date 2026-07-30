@@ -55,7 +55,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 ## 1. Before work (kickoff preparation) — fixed order
 
 1. **Bring main up to date:** `git fetch origin` (required before creating the worktree).
-2. **Create the worktree and branch:** work in a worktree based on main. Keep the main working tree clean at all times.
+2. **Create the worktree and branch:** work in a worktree based on main. Keep the main working tree clean at all times. If the harness provides a worktree tool (e.g. `EnterWorktree`), use it and take its default location; otherwise create one under `.claude/worktrees/` — `git worktree add .claude/worktrees/<branch-name> -b <branch-name> origin/main`.
 3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores).
 4. **Pre-reads + skill activation:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work.
 5. **Plan:** as prescribed by the task size table (todo / plan / brainstorm→spec→plan).
@@ -71,7 +71,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 
 1. **Commit discipline:** one commit per meaningful unit (keep it bisectable). Messages follow the project's commit convention, with `(issue-key)` at the end of the subject.
 2. **Staging discipline:** blanket `git add .` / `-A` is **forbidden** — stage only your own files, individually, by path. Run `git status` right before committing to confirm that everything staged is yours (in case another session is working concurrently).
-3. **Push to the remote:** the first push comes **after** the issue-key rename (`git push -u origin <branch>`). From then on, push **on every commit** (loss protection + external visibility).
+3. **Push to the remote:** the first push comes **after** the issue-key rename (`git push -u origin <branch>`). From then on, push **on every commit** (loss protection + external visibility). In a local-only repository with no remote, the push steps are skipped and every other rule applies unchanged.
 4. **Notable findings → issue comments:** record design decisions, unexpected behavior, interim measurements, and blockers as they happen.
 5. **Capture side-findings immediately:** file unrelated bugs and ideas as backlog issues without breaking your flow, then return. A capture is not subject to the issue-timing rule (it is a record, not a kickoff).
 6. **Honor domain invariants:** do not make changes the project's CLAUDE.md forbids (adding guards unasked, and so on). If you judge one to be genuinely necessary, propose it and obtain consent first.
