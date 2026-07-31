@@ -131,7 +131,16 @@ The skill reads project-specific values from the **`CLAUDE.md` of the project it
 | **Used at** | The docs-sync step before merge (after) |
 | **Default when absent** | Only user-facing documentation of the changed feature is checked |
 
-#### 4. Commit convention
+#### 4. Plan location
+
+| | |
+|---|---|
+| **What to write** | The directory where spec and plan documents are kept |
+| **Example** | `Plan location: docs/plans/` |
+| **Used at** | The planning step (before), for medium and large tasks. The document is written and committed inside the worktree — it is a planning artifact, not an implementation change, so it may precede the issue. Its path then goes into the issue description |
+| **Default when absent** | None. The skill will **not** create a directory in your project — it carries the plan in the issue description (or the todo list) instead |
+
+#### 5. Commit convention
 
 | | |
 |---|---|
@@ -140,7 +149,7 @@ The skill reads project-specific values from the **`CLAUDE.md` of the project it
 | **Used at** | Every commit (during) and the merge commit title (after) |
 | **Default when absent** | Conventional Commits (`fix:`, `feat:`, …) with the issue key appended to the subject |
 
-#### 5. Domain invariants
+#### 6. Domain invariants
 
 | | |
 |---|---|
@@ -156,6 +165,7 @@ The skill reads project-specific values from the **`CLAUDE.md` of the project it
 - Issue tracker: Jira, project key ABC (transitions: In Progress=21, Done=41)
 - Test gate: `npm test` — run before every merge
 - Docs gate: update the relevant page under docs/ when behavior changes
+- Plan location: docs/plans/
 - Commit convention: Conventional Commits, subject ≤ 50 chars, issue key at the end
 - Domain invariants: never change the pricing formula without explicit approval
 ```
@@ -382,7 +392,16 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **쓰이는 시점** | 머지 전 문서 동기화 단계(작업 후) |
 | **없으면** | 변경된 기능의 사용자 문서만 확인 |
 
-#### 4. 커밋 컨벤션
+#### 4. 계획 문서 위치
+
+| | |
+|---|---|
+| **적을 것** | spec·plan 문서를 두는 디렉토리 |
+| **예시** | `계획 문서 위치: docs/plans/` |
+| **쓰이는 시점** | 계획 수립 단계(작업 전)의 중형·대형 작업. 문서는 워크트리 안에서 작성·커밋합니다 — 구현 변경이 아니라 계획 산출물이므로 이슈 생성 전에 써도 됩니다. 그 경로가 이슈 설명에 들어갑니다 |
+| **없으면** | 없음. skill 이 프로젝트에 디렉토리를 **새로 만들지 않고**, 계획을 이슈 설명(또는 Todo 목록)에 담습니다 |
+
+#### 5. 커밋 컨벤션
 
 | | |
 |---|---|
@@ -391,7 +410,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **쓰이는 시점** | 모든 커밋(작업 중)과 머지 커밋 제목(작업 후) |
 | **없으면** | Conventional Commits (`fix:`, `feat:`, …) + 제목 끝 이슈 키 |
 
-#### 5. 도메인 불변
+#### 6. 도메인 불변
 
 | | |
 |---|---|
@@ -407,6 +426,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 - 이슈 트래커: Jira, 프로젝트 키 ABC (전환: 진행 중=21, 완료=41)
 - 테스트 게이트: `npm test` — 머지 전 필수
 - 문서 게이트: 동작 변경 시 docs/ 하위 해당 문서 갱신
+- 계획 문서 위치: docs/plans/
 - 커밋 컨벤션: Conventional Commits, 제목 50자 이내, 제목 끝에 이슈 키
 - 도메인 불변: 가격 계산식은 명시적 승인 없이 변경 금지
 ```
