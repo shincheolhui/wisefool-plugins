@@ -1,5 +1,13 @@
 # Changelog
 
+## work-lifecycle 1.4.0 (2026-07-31)
+
+- **어댑터 3상태 모델** / Adapter keys now have three states — 선언 / 위임 / 미정. 지금까지는 "미선언"을 "AI 가 알아서 정해도 좋다"로 해석했는데, *아직 아무도 안 정했다* 와 *알아서 해줘* 는 다른 상태다. Until now "not declared" was read as consent to decide; *undecided* and *delegated* are different states.
+- **미정 키 부트스트랩** / Bootstrapping an undecided key — 이슈 트래커·지식 기록 위치가 미정이면 조용히 정하지 않고 **그 답이 처음 필요해지는 순간 한 번 묻고, 답을 CLAUDE.md 에 기록**해 다시 묻지 않는다. For those two keys the skill asks once, at the moment the answer is first needed, and records it.
+- 질문 제약 / How it asks — 설치 직후 설문 금지, 제안과 함께 묻기, 위임 선택지 상시 제공, 답은 반드시 기록. No questionnaire at install time; ask with a proposal; always offer delegation; always write the answer down.
+- 전역 선언 / User-wide preference — `~/.claude/CLAUDE.md` 에 한 번 선언하면 모든 프로젝트에 적용되고 프로젝트 선언이 덮어쓴다. Declare once globally; a project declaration overrides it.
+- **쓰기 한계 3가지** / Three limits on writing to CLAUDE.md — 물어서 받은 답만 기록 · 별도 커밋으로 분리 · 위임해도 결과 경로는 보고. Only what the user answered; its own commit; report where records went even when delegated.
+
 ## work-lifecycle 1.3.0 (2026-07-31)
 
 - 어댑터 키 `Plan location` → **`Knowledge locations`** 로 확장 / adapter key widened — 기록 종류별로 소재를 선언한다. 소재는 저장소 경로·외부 공간(위키·Confluence)·트래커 자신 중 무엇이든 될 수 있다. Declare where each kind of record is kept; a location may be a repository path, an external space, or the tracker itself.
