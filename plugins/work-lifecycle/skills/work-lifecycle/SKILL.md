@@ -123,7 +123,8 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 
 ```
 [Triage]  Question/investigation → report only. Proceed below only on a kickoff signal. Trivial → the issue may be skipped
-[Before]  fetch → worktree (based on main) → temporary branch name → pre-reads → plan (by size)
+[Before]  fetch → worktree (based on main) → temporary branch name → pre-reads
+          → adapter check (an undecided tracker or knowledge location is resolved by asking, once) → plan (by size)
           → create issue + in progress (right after the plan is confirmed, before the first substantive action) → rename branch with the key
 [During]  meaningful-unit commits (stage only your own files, individually) → first push after the rename, then push on every commit
           → notable findings as issue comments → capture side-findings immediately
