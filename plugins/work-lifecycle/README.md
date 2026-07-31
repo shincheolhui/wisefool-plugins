@@ -144,6 +144,8 @@ The skill reads project-specific values from the **`CLAUDE.md` of the project it
 
 Choosing a location is usually decided by two things: **audience** — developer-only knowledge belongs in the repository, next to the code and subject to review, while anything non-developers must read belongs in a wiki or Confluence; and **versioning** — knowledge that must rewind together with the code belongs in the repository, whereas a point-in-time record does not.
 
+**When not to declare one.** If your tracker lives in the same place as the code and its issues are permanent (GitHub Issues on the same repository, say), leaving the plan entry undeclared is often the better choice: the plan stays in the issue, permanently linked from every commit that carries the key, and the repository does not accumulate process documents that go stale the moment the work merges. This is exactly what this repository does — see [#3](https://github.com/shincheolhui/wisefool-plugins/issues/3).
+
 #### 5. Commit convention
 
 | | |
@@ -408,6 +410,8 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **호환** | 1.2.0 에서 도입한 `계획 문서 위치: <경로>` 표기도 계획 항목 선언으로 계속 인정됩니다 |
 
 위치 선택은 대개 두 가지가 결정합니다. **청중** — 개발자만 읽는 지식은 저장소(코드 옆, 리뷰에 걸림), 비개발자도 읽어야 하는 지식은 위키·Confluence. **버전 관리 필요성** — 코드와 함께 되감겨야 하는 지식은 저장소, 시점 스냅샷이면 되는 지식은 밖.
+
+**선언하지 않는 편이 나은 경우.** 트래커가 코드와 같은 곳에 있고 이슈가 영구적이라면(같은 저장소의 GitHub Issues 등), 계획 항목은 선언하지 않는 쪽이 나을 때가 많습니다. 계획이 이슈에 남아 키를 단 모든 커밋에서 영구 링크되고, 저장소에는 머지되는 순간 낡아버릴 과정 문서가 쌓이지 않습니다. 이 저장소가 정확히 그렇게 하고 있습니다 — [#3](https://github.com/shincheolhui/wisefool-plugins/issues/3) 참조.
 
 #### 5. 커밋 컨벤션
 
