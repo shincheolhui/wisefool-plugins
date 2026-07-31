@@ -25,8 +25,23 @@ Claude Code 플러그인 마켓플레이스 저장소. 실행 코드 없이 마�
   claude plugin validate . --strict                   # 마켓플레이스 매니페스트
   claude plugin validate plugins/<name> --strict      # 플러그인 매니페스트
   ```
-- **문서 게이트:** SKILL.md 를 고쳤으면 ① 같은 플러그인 README 와 전수 대조해 불일치 0건 확인
+- **문서 게이트:** SKILL.md 를 고쳤으면 ① 아래 **대조 목록 전부**를 README 와 맞춰 불일치 0건 확인
   ② CHANGELOG 항목 추가 ③ 사용자 가시 변경이면 `plugin.json` version 올림 (SemVer).
+
+  **대조 목록** — 키 개수·순서만 보면 표 안의 값이 어긋나는 것을 놓친다 (#4 에서 실제로 3종 발생):
+
+  | 대조 대상 | 어디 ↔ 어디 |
+  |---|---|
+  | 어댑터 키의 개수·순서 | SKILL 표 ↔ README `#### N.` 영·한 |
+  | **어댑터 각 행의 값** (특히 "없으면/Default") | SKILL 표 ↔ README 각 항목 표 |
+  | 작업 전·중·후 단계 열거 | SKILL 절·체크리스트 ↔ README 개요·사용법 표 (영·한) |
+  | 사용 시나리오 A~D | SKILL 동작 ↔ README 시나리오 (영·한) |
+  | 문제 해결 항목 | SKILL 동작 ↔ README 문제 해결 표 (영·한) |
+  | 전제조건 표 | SKILL 이 요구하는 외부 자원 ↔ README 전제조건 |
+  | **제품 소개문 4곳** | `marketplace.json` · `plugin.json` · 루트 README 표 · 플러그인 README 태그라인 |
+
+  **동작이 바뀌는 변경이면 소개문 4곳을 반드시 재검토한다.** 소개문은 정본과 직접 대조되지
+  않아 조용히 낡는다 — 실제로 1.0.0 문구가 1.4.0 까지 그대로 남아 있었다 (#5).
 - **지식 기록 위치:** 계획 → **선언하지 않음**(이슈에 담는다 — #3 에서 선언했다가 되돌린 판단,
   근거는 `5f6d0c9`). 사고 기록 → 아직 미정 (사고가 처음 났을 때 묻고 정한다).
 - **커밋 컨벤션:** 한글, Conventional 접두사(`docs:` `fix:` `feat:` `refactor:` `chore:`),
