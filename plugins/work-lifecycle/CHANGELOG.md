@@ -1,5 +1,14 @@
 # Changelog
 
+## work-lifecycle 1.5.0 (2026-07-31)
+
+문서만 바뀐 릴리스다. 절차 자체는 1.4.0 과 동일하되, 제품 설명이 실체를 따라오지 못한 부분을 맞췄다. / A documentation release: the procedure is unchanged from 1.4.0, but the product description now matches what the skill actually does.
+
+- **소개문 4곳 개정** / Product description refreshed — `marketplace.json`·`plugin.json`·저장소 README·플러그인 README 가 1.0.0 문구("triage, isolated worktree, tracked issue, verified merge")에 멈춰 있어, 1.2.0~1.4.0 에서 더해진 지식 축이 빠져 있었다. All four were still describing 1.0.0.
+- **"왜 필요한가"에 지식 축 추가** / Sixth problem/guarantee pair — 작업이 남긴 것이 대화에만 남아 다음 세션이 아무것도 모른 채 시작하는 문제와, 기록이 사용자가 정한 자리에 남는다는 보장. Records land where you decided they belong.
+- **전제조건에 기록 저장소 도달 가능성** / New prerequisite — 선언했는데 도달하지 못하는 위치는 규칙을 조용히 실패시킨다. A declared but unreachable location makes the rule fail silently.
+- 체크리스트 `[Before]` 에 어댑터 미정 해소 단계 / Checklist now shows the adapter check.
+
 ## work-lifecycle 1.4.0 (2026-07-31)
 
 - **어댑터 3상태 모델** / Adapter keys now have three states — 선언 / 위임 / 미정. 지금까지는 "미선언"을 "AI 가 알아서 정해도 좋다"로 해석했는데, *아직 아무도 안 정했다* 와 *알아서 해줘* 는 다른 상태다. Until now "not declared" was read as consent to decide; *undecided* and *delegated* are different states.
