@@ -1,5 +1,13 @@
 # Changelog
 
+## work-lifecycle 1.3.0 (2026-07-31)
+
+- 어댑터 키 `Plan location` → **`Knowledge locations`** 로 확장 / adapter key widened — 기록 종류별로 소재를 선언한다. 소재는 저장소 경로·외부 공간(위키·Confluence)·트래커 자신 중 무엇이든 될 수 있다. Declare where each kind of record is kept; a location may be a repository path, an external space, or the tracker itself.
+- **호환** / Compatibility — 1.2.0 의 `Plan location: <경로>` 표기는 계획 항목 선언으로 계속 인정된다. `Plan location: <path>` is still accepted as the plan entry.
+- 계획 문서 소재 조건화 / Plan documents no longer assume a repository path — 소재가 저장소 경로일 때만 워크트리 안에서 작성·커밋하고, 외부 공간이면 거기에 생성한다. Written and committed in the worktree only when the location is a repository path.
+- **사고 기록 조항 신설 (3.6)** / New step — incident record — 버그·설정 오류·운영 실수로 **실제 피해가 발생한** 작업은 `증상 → 원인 → 해결 → 재발 방지 → 관련 자산` 기록을 남기고 이슈에서 링크한다. 일반 작업과 near miss 는 대상이 아니다(노이즈가 진짜 사고를 묻는다). Only for tasks that caused actual damage; ordinary work and near misses are excluded.
+- 기존 3.6 교훈 → 3.7, 3.7 워크트리 정리 → 3.8 재번호 / Subsequent steps renumbered.
+
 ## work-lifecycle 1.2.0 (2026-07-31)
 
 - 어댑터 키 추가: **계획 문서 위치** / New adapter key: **Plan location** — spec·plan 문서를 둘 디렉토리를 프로젝트 CLAUDE.md 에서 선언한다. Declare in the project's CLAUDE.md where spec/plan documents are kept.
