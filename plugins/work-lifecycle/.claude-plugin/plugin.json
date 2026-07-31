@@ -1,7 +1,7 @@
 {
   "name": "work-lifecycle",
   "displayName": "Work Lifecycle",
-  "description": "Claude Code 를 규율 있는 팀 동료처럼 일하게 만드는 작업 라이프사이클 skill — 질문엔 조사만, 착수 신호엔 격리 워크트리 → 이슈 추적 → 커밋·push 규율 → 검증된 머지까지 한 절차로. / Makes Claude Code work like a disciplined teammate — triage, isolated worktree, tracked issue, commit/push discipline, verified merge, every session.",
+  "description": "Claude Code 를 규율 있는 팀 동료처럼 — 질문엔 조사만, 착수엔 격리 워크트리→이슈 추적→검증된 머지. 작업이 남긴 지식은 사용자가 정한 자리에 남기고, 정해지지 않았으면 대신 정하지 않고 한 번 묻습니다. / Makes Claude Code work like a disciplined teammate — triage, isolated worktree, tracked issue, verified merge — and keeps what each task taught you in the place you chose, asking once instead of deciding for you.",
   "version": "1.4.0",
   "author": {
     "name": "wisefool",
@@ -10,5 +10,13 @@
   "homepage": "https://github.com/shincheolhui/wisefool-plugins",
   "repository": "https://github.com/shincheolhui/wisefool-plugins",
   "license": "MIT",
-  "keywords": ["workflow", "git", "worktree", "issue-tracking", "lifecycle"]
+  "keywords": [
+    "workflow",
+    "git",
+    "worktree",
+    "issue-tracking",
+    "lifecycle",
+    "knowledge-management",
+    "documentation"
+  ]
 }
