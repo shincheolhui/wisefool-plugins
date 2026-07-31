@@ -103,6 +103,20 @@ Signals are recognized in **any language**. To invoke the skill explicitly: `/wo
 
 The skill reads project-specific values from the **`CLAUDE.md` of the project it is running in**. Every key is optional — a safe default applies when a key is absent. Write them in plain prose or bullets; there is no rigid syntax, but each value must be unambiguous (exact commands, exact keys).
 
+**Three states, not two.** A key is *declared* (the skill follows it), *delegated* (you wrote something like `Knowledge locations: delegate` — the skill decides and tells you what it chose), or *undecided* (nothing written). For most keys, undecided just means the default. But for the two keys that decide **where your issues and knowledge live**, undecided is not taken as permission to choose for you — the skill asks once, at the moment the answer is first needed, and records your answer so it never asks again.
+
+That means you can run this plugin three ways, and you pick:
+
+| You want | Write this |
+|---|---|
+| Full control | Declare the locations up front |
+| To be asked, then never again | Write nothing — answer the one question when it comes |
+| The skill to handle it silently | Declare delegation once (it still reports where things went) |
+
+A preference that is really about *you* rather than one project — "always just decide for me" — goes once into your global `~/.claude/CLAUDE.md` and applies everywhere; a project's own declaration overrides it.
+
+**What the skill may write.** Answering a bootstrap question lets the skill add that answer to your `CLAUDE.md`. It may record **only what you actually answered** — never a value it inferred — it keeps that edit as **its own commit** so you can see it, and it **reports where records went even when you delegated**. "Decide it for me" is not "do it behind my back".
+
 #### 1. Issue tracker
 
 | | |
@@ -369,6 +383,20 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 ### 프로젝트 어댑터 레퍼런스
 
 skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 값을 읽습니다. 모든 키는 선택 사항이고, 없으면 안전한 기본값으로 동작합니다. 형식 제약은 없지만(산문·불릿 무방) 값 자체는 모호하지 않아야 합니다 (정확한 명령어, 정확한 키).
+
+**상태는 둘이 아니라 셋입니다.** 키는 *선언됨*(skill 이 그대로 따름), *위임됨*(`지식 기록 위치: 위임` 처럼 적어 둔 경우 — skill 이 정하되 어디로 정했는지 알려 줌), *미정*(아무것도 안 적음) 중 하나입니다. 대부분의 키는 미정이면 그냥 기본값입니다. 하지만 **당신의 이슈와 지식이 어디에 쌓일지**를 정하는 두 키는, 미정을 "대신 정해도 좋다"로 받아들이지 않습니다 — skill 이 그 답이 처음 필요해지는 순간에 **한 번만** 묻고, 답을 기록해 다시는 묻지 않습니다.
+
+즉 이 플러그인은 세 가지 방식으로 쓸 수 있고, 선택은 사용자 몫입니다:
+
+| 원하는 것 | 이렇게 적습니다 |
+|---|---|
+| 완전한 통제 | 위치를 미리 선언 |
+| 한 번 묻고 그 뒤로는 안 묻기 | 아무것도 안 적음 — 질문이 오면 그때 답변 |
+| skill 이 알아서 처리 | 위임을 한 번 선언 (그래도 어디에 넣었는지는 보고합니다) |
+
+특정 프로젝트가 아니라 *사람* 단위 선호라면("나는 항상 알아서 해주면 좋겠다") 전역 `~/.claude/CLAUDE.md` 에 한 번 적으면 모든 프로젝트에 적용되고, 프로젝트 선언이 그것을 덮어씁니다.
+
+**skill 이 쓸 수 있는 것.** 부트스트랩 질문에 답하면 skill 이 그 답을 `CLAUDE.md` 에 추가합니다. 이때 **사용자가 실제로 답한 것만** 기록하며(추론한 값은 절대 적지 않습니다), 그 편집을 **별도 커밋**으로 분리해 눈에 보이게 하고, **위임한 경우에도 기록이 어디로 갔는지 보고합니다.** "알아서 해줘"가 "몰래 해줘"는 아니니까요.
 
 #### 1. 이슈 트래커
 
