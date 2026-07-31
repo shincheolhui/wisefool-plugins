@@ -17,7 +17,7 @@ On activation, check the project's CLAUDE.md for the following. When a key is un
 | Issue tracker | Type (Jira / GitHub Issues / …), project key, how to transition status | Skip the issue steps; substitute a todo list |
 | Test gate | Test commands to run before commit and merge | Run the project's standard test runner once |
 | Docs gate | Which documents must stay in sync, and any check command | Check only the user-facing docs of the changed feature |
-| Plan location | Where spec/plan documents are kept (e.g. `docs/plans/`) | None — carry the plan in the issue description or the todo list instead of creating a directory |
+| Knowledge locations | Where each kind of record is kept — plan/spec documents, incident records, and any other kind the project names. A location may be a repository path (`docs/plans/`), an external space (a wiki, a Confluence space), or the tracker itself. `Plan location: <path>` is also accepted as the plan entry | None — fall back to the issue (description or comment), and to the todo list when there is no tracker. Never create a directory in the project |
 | Commit convention | Language, format, prefix rules | Conventional Commits (`fix:`, `feat:`, …) |
 | Domain invariants | Principles that must never be violated (e.g. never change specific logic unasked) | None |
 
@@ -60,7 +60,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores).
 4. **Pre-reads + skill activation:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work.
 5. **Plan:** as prescribed by the task size table (todo / plan / brainstorm→spec→plan).
-   - **Where the plan lives:** write spec/plan documents inside the worktree and commit them there — they are planning artifacts, not implementation changes, so they may precede the issue. Put them in the project's plan location; when none is declared, do **not** invent a directory in that project — carry the plan in the issue description (or the todo list) instead.
+   - **Where the plan lives:** put spec/plan documents in the project's plan location. When that location is a repository path, write them inside the worktree and commit them there; when it is an external space, create them there. Either way they are planning artifacts, not implementation changes, so they may precede the issue. When no location is declared, do **not** invent a directory in that project — carry the plan in the issue description (or the todo list) instead.
 6. **Create the issue** (when a tracker is defined):
    - **Timing:** immediately once the plan is confirmed — at the latest, before the first **substantive work action**.
    - For a large task whose planning may outlive the session, create it at kickoff (so an "in progress" record survives even if the session is cut short mid-plan).
@@ -91,8 +91,9 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
    ```
    The merge commit title is **issue key + summary**: `Merge: <issue-key> <title>` (so issues remain traceable from main's history). On conflict, resolve it by reverse-merging main into the work branch (never rebase), then retry.
 5. **Close the issue:** post a result-summary comment (non-developer terms + commit hashes), then transition the status to done.
-6. **Sync memory and records:** if there are lessons worth keeping (incidents, findings, feedback), record them in the project's memory and documents.
-7. **Clean up the worktree (keep the branch):** `git worktree remove <path>` removes **only the worktree**. The branch is kept both locally and on the remote (history and rollback point).
+6. **Incident record:** if this task was an **incident** — a bug, misconfiguration, or operational mistake that caused *actual* damage: a wrong result reaching users or an external system, data loss or corruption, an outage, or a manual intervention to recover — write one record in the project's incident location. Template: **symptom → cause → fix → prevention → related assets** (issue, commits, canonical documents). Write it for a non-developer reader, and link to canonical documents rather than restating them. Link the record from the issue so it stays traceable. Ordinary feature, refactor and documentation work is **not** an incident, and neither is a near miss — filing those buries the real ones in noise.
+7. **Sync memory and records:** if there are lessons worth keeping (findings, feedback, near misses), record them in the project's knowledge locations — its memory and documents.
+8. **Clean up the worktree (keep the branch):** `git worktree remove <path>` removes **only the worktree**. The branch is kept both locally and on the remote (history and rollback point).
 
 ## Core invariants (summary)
 
@@ -111,5 +112,6 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
           → notable findings as issue comments → capture side-findings immediately
 [After]   test gate → real e2e verification (never mock-only) → docs sync
           → (user confirmation) merge --no-ff "Merge: <issue-key> <title>" + push
-          → close the issue → sync records → remove only the worktree (keep the branch)
+          → close the issue → incident record (only if damage actually occurred) → sync records
+          → remove only the worktree (keep the branch)
 ```
