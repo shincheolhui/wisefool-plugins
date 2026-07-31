@@ -17,6 +17,7 @@ On activation, check the project's CLAUDE.md for the following. When a key is un
 | Issue tracker | Type (Jira / GitHub Issues / …), project key, how to transition status | Skip the issue steps; substitute a todo list |
 | Test gate | Test commands to run before commit and merge | Run the project's standard test runner once |
 | Docs gate | Which documents must stay in sync, and any check command | Check only the user-facing docs of the changed feature |
+| Plan location | Where spec/plan documents are kept (e.g. `docs/plans/`) | None — carry the plan in the issue description or the todo list instead of creating a directory |
 | Commit convention | Language, format, prefix rules | Conventional Commits (`fix:`, `feat:`, …) |
 | Domain invariants | Principles that must never be violated (e.g. never change specific logic unasked) | None |
 
@@ -59,11 +60,12 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores).
 4. **Pre-reads + skill activation:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work.
 5. **Plan:** as prescribed by the task size table (todo / plan / brainstorm→spec→plan).
+   - **Where the plan lives:** write spec/plan documents inside the worktree and commit them there — they are planning artifacts, not implementation changes, so they may precede the issue. Put them in the project's plan location; when none is declared, do **not** invent a directory in that project — carry the plan in the issue description (or the todo list) instead.
 6. **Create the issue** (when a tracker is defined):
    - **Timing:** immediately once the plan is confirmed — at the latest, before the first **substantive work action**.
    - For a large task whose planning may outlive the session, create it at kickoff (so an "in progress" record survives even if the session is cut short mid-plan).
    - If the item is already captured in the backlog, do not create a new one — transition it to "in progress" and refresh the description.
-   - Title in non-developer terms, outcome-focused; the description carries what and why, plus the branch name and the plan path.
+   - Title in non-developer terms, outcome-focused; the description carries what and why, plus the branch name and the plan path — or the plan itself, when the project has no plan location.
 7. **Rename the branch with the key:** right after creating the issue, `git branch -m <prefix>/<issue-key>-<task-name>`. A branch carries **exactly one key** — the kickoff issue's (no epics, no multiple keys).
    - When planning yields multiple issues: sequential stages = parent + subtasks (parent key) / independent tasks = start only the first and backlog the rest / discovered mid-implementation = narrow the current issue's scope and file a new backlog issue.
 
