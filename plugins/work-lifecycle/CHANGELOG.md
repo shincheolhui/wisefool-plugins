@@ -1,5 +1,12 @@
 # Changelog
 
+## work-lifecycle 1.2.0 (2026-07-31)
+
+- 어댑터 키 추가: **계획 문서 위치** / New adapter key: **Plan location** — spec·plan 문서를 둘 디렉토리를 프로젝트 CLAUDE.md 에서 선언한다. Declare in the project's CLAUDE.md where spec/plan documents are kept.
+- 계획 문서 소재 규정 / Plan documents now have a defined home — 워크트리 안에서 작성·커밋하며, 계획 산출물이므로 이슈 생성 전에 써도 된다. Written and committed inside the worktree; being a planning artifact, it may precede the issue.
+- 위치 미선언 시 동작 / When no location is declared — 프로젝트에 디렉토리를 새로 만들지 않고 계획을 이슈 설명(또는 Todo)에 담는다. The skill will not create a directory in your project; the plan is carried in the issue description or the todo list instead.
+- 배경: 1.6 이 이슈 설명에 "plan 경로"를 요구하는데 그 경로의 소재가 정본에 없었다 / Background: step 1.6 required a "plan path" in the issue description while the canon never said where that path should be.
+
 ## work-lifecycle 1.1.0 (2026-07-30)
 
 - SKILL.md 본문을 영어로 단일화 / SKILL.md body is now English-only — 절차·구조·의미는 불변, 한국어 착수 신호 트리거(frontmatter `description`)는 그대로 유지. Procedure, structure and meaning unchanged; the Korean kickoff-signal triggers are kept.
