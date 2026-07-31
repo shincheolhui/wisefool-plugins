@@ -25,7 +25,6 @@ Claude Code 플러그인 마켓플레이스 저장소. 실행 코드 없이 마�
   claude plugin validate . --strict                   # 마켓플레이스 매니페스트
   claude plugin validate plugins/<name> --strict      # 플러그인 매니페스트
   ```
-- **계획 문서 위치:** `docs/plans/` — 중형 이상 작업의 계획 문서를 워크트리 안에서 작성·커밋한다.
 - **문서 게이트:** SKILL.md 를 고쳤으면 ① 같은 플러그인 README 와 전수 대조해 불일치 0건 확인
   ② CHANGELOG 항목 추가 ③ 사용자 가시 변경이면 `plugin.json` version 올림 (SemVer).
 - **커밋 컨벤션:** 한글, Conventional 접두사(`docs:` `fix:` `feat:` `refactor:` `chore:`),
