@@ -10,16 +10,33 @@ The common procedure that every task follows — features, bugs, research, refac
 
 ## Project adapter — what to check in CLAUDE.md
 
-On activation, check the project's CLAUDE.md for the following. When a key is undefined, operate on the default in the right-hand column.
+On activation, check the project's CLAUDE.md for the following. Every key is in one of three states — **declared** (follow it), **delegated** (the project explicitly hands the choice to you; decide, then report what you chose), or **undecided** (nothing written).
+
+For most keys, undecided simply means the default in the right-hand column. For **Issue tracker** and **Knowledge locations** — where the user's issues and knowledge are kept — undecided is **not** consent to decide for them: resolve it by asking, once (see "Bootstrapping an undecided key").
 
 | Item | What the project defines | Default when undefined |
 |---|---|---|
-| Issue tracker | Type (Jira / GitHub Issues / …), project key, how to transition status | Skip the issue steps; substitute a todo list |
+| Issue tracker | Type (Jira / GitHub Issues / …), project key, how to transition status | Ask once. Once delegated: skip the issue steps; substitute a todo list |
 | Test gate | Test commands to run before commit and merge | Run the project's standard test runner once |
 | Docs gate | Which documents must stay in sync, and any check command | Check only the user-facing docs of the changed feature |
-| Knowledge locations | Where each kind of record is kept — plan/spec documents, incident records, and any other kind the project names. A location may be a repository path (`docs/plans/`), an external space (a wiki, a Confluence space), or the tracker itself. `Plan location: <path>` is also accepted as the plan entry | None — fall back to the issue (description or comment), and to the todo list when there is no tracker. Never create a directory in the project |
+| Knowledge locations | Where each kind of record is kept — plan/spec documents, incident records, and any other kind the project names. A location may be a repository path (`docs/plans/`), an external space (a wiki, a Confluence space), or the tracker itself. `Plan location: <path>` is also accepted as the plan entry | Ask once. Once delegated: fall back to the issue (description or comment), and to the todo list when there is no tracker. Never create a directory in the project |
 | Commit convention | Language, format, prefix rules | Conventional Commits (`fix:`, `feat:`, …) |
 | Domain invariants | Principles that must never be violated (e.g. never change specific logic unasked) | None |
+
+### Bootstrapping an undecided key
+
+Where a user's issues and knowledge live is their decision, not something to infer. When one of those two keys is undecided **and the moment to use it arrives**, ask — do not decide quietly.
+
+- **Ask only when needed.** Never run a questionnaire at install time or at the start of a session. Ask about the plan location when the first medium task needs a plan; ask about the incident location when the first incident is closing. A capability that is never used is never asked about.
+- **Ask with a proposal, not a blank.** Offer the place you would have chosen, plus "somewhere else" and "decide it for me from now on". Approving or amending a proposal is far easier than answering an open question — and it puts your judgment in front of the user instead of behind them.
+- **Always offer delegation.** One answer must be able to switch the question off for good.
+- **Write the answer down** in the project's CLAUDE.md adapter. Without that, the next session asks again — and asking twice is where this turns into an annoyance. A user-wide preference can be declared once in the global `~/.claude/CLAUDE.md`; a project's declaration overrides it.
+
+Writing to CLAUDE.md is a privilege with three limits — carry them into the project's domain invariants as well:
+
+- Record **only what the user answered.** Never write down a value you inferred.
+- Keep that record as **its own commit**, so it is visible rather than buried in unrelated changes.
+- Even when the choice is delegated, **report where the record went.** "Decide it for me" is not "do it behind my back".
 
 ## Terms and criteria
 

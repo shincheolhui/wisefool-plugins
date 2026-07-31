@@ -2,7 +2,7 @@
   "name": "work-lifecycle",
   "displayName": "Work Lifecycle",
   "description": "Claude Code 를 규율 있는 팀 동료처럼 일하게 만드는 작업 라이프사이클 skill — 질문엔 조사만, 착수 신호엔 격리 워크트리 → 이슈 추적 → 커밋·push 규율 → 검증된 머지까지 한 절차로. / Makes Claude Code work like a disciplined teammate — triage, isolated worktree, tracked issue, commit/push discipline, verified merge, every session.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": {
     "name": "wisefool",
     "url": "https://github.com/shincheolhui"
