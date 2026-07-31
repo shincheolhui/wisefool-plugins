@@ -30,6 +30,7 @@ Working with an AI coding agent without a fixed procedure tends to fail in the s
 - Commits carry no issue reference, so months later nobody knows why a change was made
 - Every session improvises a different process, so quality depends on the day
 - Bugs and ideas discovered mid-task get buried in the conversation and lost
+- What a task taught you — a decision, an incident, a dead end — lives only in the conversation, so the next session starts blind
 
 This skill turns each of those into a guarantee, one for one:
 
@@ -38,6 +39,7 @@ This skill turns each of those into a guarantee, one for one:
 - **Issue-keyed** branches, commits and merge titles — `git log --oneline` reads as an issue index
 - The **same before / during / after procedure** in every session
 - Side-findings are **captured to the backlog immediately**, without derailing the current task
+- Records land **where you decided they belong** — and when you have not decided, the skill **asks once** instead of choosing for you
 
 ### How it works (overview)
 
@@ -77,6 +79,7 @@ Once work starts: **before** (fetch → worktree + branch → plan sized to the 
 | Git **2.5+** (`git worktree` support) | Worktree isolation | Update git; the plugin itself is pure markdown, any OS works |
 | A remote (`origin`) you can push to | Push-every-commit, remote backup | Push steps are skipped in a local-only repository; everything else still applies |
 | *(Optional)* Issue tracker reachable from Claude Code | Issue create / comment / close steps | Falls back to session todo lists — see [adapter reference](#project-adapter-reference) |
+| *(Optional)* A reachable place to keep records — a repository path, a wiki, a Confluence space | Plan documents, incident records | Records fall back to the issue. **A location you declare but Claude Code cannot reach makes the rule fail silently** — confirm access before declaring one |
 | *(Optional)* Planning skills (e.g. superpowers) | Spec/plan documents for large tasks | Specs and plans are written as plain markdown documents |
 
 ### Usage
@@ -322,6 +325,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 - 커밋에 이슈 연결이 없음 → 몇 달 뒤 왜 바꿨는지 아무도 모름
 - 세션마다 절차를 즉흥으로 만듦 → 품질이 그날그날 복불복
 - 작업 중 발견한 버그·아이디어가 대화 속에 묻혀 유실
+- 작업이 남긴 것(결정·사고·막다른 길)이 대화에만 있어서, 다음 세션은 아무것도 모른 채 시작
 
 이 skill 은 그 각각을 1:1 로 보장으로 바꿉니다:
 
@@ -330,6 +334,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 - 브랜치·커밋·머지 제목에 **이슈 키** — `git log --oneline` 이 이슈 목차가 됨
 - 모든 세션이 **동일한 전·중·후 절차**
 - 곁가지는 **즉시 백로그로 캐처** — 현재 작업 흐름을 끊지 않음
+- 기록은 **사용자가 정한 자리**에 남고, 정해지지 않았으면 대신 고르지 않고 **한 번 묻습니다**
 
 ### 동작 개요
 
@@ -369,6 +374,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 | Git **2.5 이상** (`git worktree` 지원) | 워크트리 격리 | git 업데이트. 플러그인 자체는 마크다운뿐이라 OS 무관 |
 | push 가능한 원격(`origin`) | 매 커밋 push·원격 백업 | 로컬 전용 저장소면 push 단계만 생략, 나머지 동일 |
 | *(선택)* Claude Code 에서 접근 가능한 이슈 트래커 | 이슈 생성·댓글·완료 단계 | 세션 Todo 목록으로 대체 — [어댑터 레퍼런스](#프로젝트-어댑터-레퍼런스) 참조 |
+| *(선택)* 기록을 둘 접근 가능한 자리 — 저장소 경로·위키·Confluence 스페이스 | 계획 문서, 사고 기록 | 기록이 이슈로 폴백됩니다. **선언했는데 Claude Code 가 도달하지 못하면 규칙이 조용히 실패합니다** — 선언 전에 접근을 확인하세요 |
 | *(선택)* 계획 보조 skill (superpowers 등) | 대형 작업의 spec/plan | 일반 마크다운 문서로 작성 |
 
 ### 사용법
