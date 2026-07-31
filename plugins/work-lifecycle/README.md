@@ -43,7 +43,7 @@ This skill turns each of those into a guarantee, one for one:
 
 Every turn starts with **triage**: questions get investigation and a report only (no files touched); an explicit kickoff signal ("go ahead", "implement it") enters the work procedure; tiny fixes (typos, a few lines) may skip the ceremony.
 
-Once work starts: **before** (fetch → worktree + branch → plan sized to the task → tracker issue → branch renamed with the issue key) → **during** (meaningful-unit commits, own-files-only staging, push every commit, decisions logged as issue comments) → **after** (test gate → real e2e verification → docs sync → user-approved `--no-ff` merge → issue closed → worktree removed, branch kept).
+Once work starts: **before** (fetch → worktree + branch → plan sized to the task → tracker issue → branch renamed with the issue key) → **during** (meaningful-unit commits, own-files-only staging, push every commit, decisions logged as issue comments) → **after** (test gate → real e2e verification → docs sync → user-approved `--no-ff` merge → issue closed → an incident record if damage actually occurred → worktree removed, branch kept).
 
 > **The canonical procedure is [SKILL.md](skills/work-lifecycle/SKILL.md).** It is a human-readable markdown file and it is *exactly* what the model follows — the spec and the behavior are the same document. This README intentionally does not restate it; when in doubt about any rule, SKILL.md is the authority.
 
@@ -87,7 +87,7 @@ There is no command to run in daily use — the skill activates on its own:
 |---|---|
 | A question — "why does login fail?", "is this possible?" | Investigation and a report. **No files are touched.** Even if a fix is obvious, it is not applied until you say so |
 | A kickoff signal — "go ahead", "implement it", "fix it" | The *before* steps run: fetch → worktree + branch → plan sized to the task → tracker issue created and moved to In Progress → branch renamed with the issue key. Then implementation proceeds under the *during* rules |
-| A finish signal — "merge it", "wrap up" | The *after* steps run: test gate → real e2e verification → docs sync → merge (asks for your approval first) → issue closed → worktree removed, branch kept |
+| A finish signal — "merge it", "wrap up" | The *after* steps run: test gate → real e2e verification → docs sync → merge (asks for your approval first) → issue closed → an incident record if damage actually occurred → worktree removed, branch kept |
 
 Signals are recognized in **any language**. To invoke the skill explicitly: `/work-lifecycle:work-lifecycle`.
 
@@ -131,14 +131,20 @@ The skill reads project-specific values from the **`CLAUDE.md` of the project it
 | **Used at** | The docs-sync step before merge (after) |
 | **Default when absent** | Only user-facing documentation of the changed feature is checked |
 
-#### 4. Plan location
+#### 4. Knowledge locations
 
 | | |
 |---|---|
-| **What to write** | The directory where spec and plan documents are kept |
-| **Example** | `Plan location: docs/plans/` |
-| **Used at** | The planning step (before), for medium and large tasks. The document is written and committed inside the worktree — it is a planning artifact, not an implementation change, so it may precede the issue. Its path then goes into the issue description |
-| **Default when absent** | None. The skill will **not** create a directory in your project — it carries the plan in the issue description (or the todo list) instead |
+| **What to write** | Where each kind of record is kept. A location may be a repository path, an external space (wiki, Confluence), or the tracker itself — issue management and knowledge keeping do not have to live in the same system |
+| **Example** | `Knowledge locations: plans → docs/plans/; incident records → Confluence "Troubleshooting" space; design decisions → issue comments` |
+| **Used at** | Planning (before) for spec/plan documents · the incident-record step (after) · lesson records (after) |
+| **Additional requirement** | Same as the tracker: the location must actually be reachable from Claude Code. A declared destination that cannot be reached makes the rule **fail silently** — the worst outcome |
+| **Default when absent** | Falls back to the issue (description or comment), and to the todo list when there is no tracker. The skill will **never** create a directory in your project |
+| **Compatibility** | `Plan location: <path>` (introduced in 1.2.0) is still accepted as the plan entry |
+
+Choosing a location is usually decided by two things: **audience** — developer-only knowledge belongs in the repository, next to the code and subject to review, while anything non-developers must read belongs in a wiki or Confluence; and **versioning** — knowledge that must rewind together with the code belongs in the repository, whereas a point-in-time record does not.
+
+**When not to declare one.** If your tracker lives in the same place as the code and its issues are permanent (GitHub Issues on the same repository, say), leaving the plan entry undeclared is often the better choice: the plan stays in the issue, permanently linked from every commit that carries the key, and the repository does not accumulate process documents that go stale the moment the work merges. This is exactly what this repository does — see [#3](https://github.com/shincheolhui/wisefool-plugins/issues/3).
 
 #### 5. Commit convention
 
@@ -165,7 +171,7 @@ The skill reads project-specific values from the **`CLAUDE.md` of the project it
 - Issue tracker: Jira, project key ABC (transitions: In Progress=21, Done=41)
 - Test gate: `npm test` — run before every merge
 - Docs gate: update the relevant page under docs/ when behavior changes
-- Plan location: docs/plans/
+- Knowledge locations: plans → docs/plans/; incident records → Confluence "Troubleshooting" space
 - Commit convention: Conventional Commits, subject ≤ 50 chars, issue key at the end
 - Domain invariants: never change the pricing formula without explicit approval
 ```
@@ -304,7 +310,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 모든 턴은 **분류**로 시작합니다: 질문은 조사·보고만(파일 무변경), 명시적 착수 신호("진행합시다", "구현해주세요")에만 작업 절차 진입, 잔손질(오탈자·수 줄)은 절차 생략 가능.
 
-작업이 시작되면: **작업 전**(fetch → 워크트리+브랜치 → 규모별 계획 → 트래커 이슈 → 이슈 키로 브랜치 rename) → **작업 중**(의미 단위 커밋, 내 파일만 스테이징, 매 커밋 push, 결정 사항 이슈 댓글) → **작업 후**(테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 사용자 승인 후 `--no-ff` 머지 → 이슈 완료 → 워크트리 제거·브랜치 보존).
+작업이 시작되면: **작업 전**(fetch → 워크트리+브랜치 → 규모별 계획 → 트래커 이슈 → 이슈 키로 브랜치 rename) → **작업 중**(의미 단위 커밋, 내 파일만 스테이징, 매 커밋 push, 결정 사항 이슈 댓글) → **작업 후**(테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 사용자 승인 후 `--no-ff` 머지 → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존).
 
 > **절차의 정본은 [SKILL.md](skills/work-lifecycle/SKILL.md) 입니다** (본문은 영어). 사람이 읽을 수 있는 마크다운이면서 모델이 따르는 것 *그 자체*라, 명세와 동작이 같은 문서입니다. 이 README 는 절차를 중복 서술하지 않습니다 — 규칙이 궁금하면 SKILL.md 가 정답입니다.
 
@@ -348,7 +354,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 |---|---|
 | 질문 — "로그인이 왜 실패하죠?", "가능해요?" | 조사와 보고. **파일을 건드리지 않습니다.** 수정안이 자명해도 지시 전에는 적용하지 않습니다 |
 | 착수 신호 — "진행합시다", "구현해주세요", "고쳐주세요" | *작업 전* 절차 실행: fetch → 워크트리+브랜치 → 규모별 계획 → 트래커 이슈 생성·진행 중 전환 → 이슈 키로 브랜치 rename. 이후 *작업 중* 규율로 구현 |
-| 마무리 신호 — "머지", "완료 처리" | *작업 후* 절차 실행: 테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 머지(먼저 승인을 요청) → 이슈 완료 → 워크트리 제거·브랜치 보존 |
+| 마무리 신호 — "머지", "완료 처리" | *작업 후* 절차 실행: 테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 머지(먼저 승인을 요청) → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존 |
 
 신호는 **언어 불문** 인식됩니다. 명시적으로 부르려면: `/work-lifecycle:work-lifecycle`.
 
@@ -392,14 +398,20 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **쓰이는 시점** | 머지 전 문서 동기화 단계(작업 후) |
 | **없으면** | 변경된 기능의 사용자 문서만 확인 |
 
-#### 4. 계획 문서 위치
+#### 4. 지식 기록 위치
 
 | | |
 |---|---|
-| **적을 것** | spec·plan 문서를 두는 디렉토리 |
-| **예시** | `계획 문서 위치: docs/plans/` |
-| **쓰이는 시점** | 계획 수립 단계(작업 전)의 중형·대형 작업. 문서는 워크트리 안에서 작성·커밋합니다 — 구현 변경이 아니라 계획 산출물이므로 이슈 생성 전에 써도 됩니다. 그 경로가 이슈 설명에 들어갑니다 |
-| **없으면** | 없음. skill 이 프로젝트에 디렉토리를 **새로 만들지 않고**, 계획을 이슈 설명(또는 Todo 목록)에 담습니다 |
+| **적을 것** | 기록 종류별로 어디에 남길지. 소재는 저장소 경로일 수도, 외부 공간(위키·Confluence)일 수도, 트래커 자신일 수도 있습니다 — 이슈를 관리하는 지점과 지식을 쌓는 지점이 같은 시스템일 필요는 없습니다 |
+| **예시** | `지식 기록 위치: 계획 → docs/plans/; 사고 기록 → Confluence "트러블슈팅" 스페이스; 설계 결정 → 이슈 댓글` |
+| **쓰이는 시점** | 계획 수립(작업 전)의 spec·plan 문서 · 사고 기록 단계(작업 후) · 교훈 기록(작업 후) |
+| **추가 전제** | 트래커와 동일 — 선언한 위치에 Claude Code 가 실제로 접근할 수 있어야 합니다. 도달하지 못하는 위치를 선언하면 규칙이 **조용히 실패**하며, 이게 최악입니다 |
+| **없으면** | 이슈(설명 또는 댓글)로 폴백하고, 트래커도 없으면 Todo 목록으로 갑니다. skill 이 프로젝트에 디렉토리를 **새로 만드는 일은 없습니다** |
+| **호환** | 1.2.0 에서 도입한 `계획 문서 위치: <경로>` 표기도 계획 항목 선언으로 계속 인정됩니다 |
+
+위치 선택은 대개 두 가지가 결정합니다. **청중** — 개발자만 읽는 지식은 저장소(코드 옆, 리뷰에 걸림), 비개발자도 읽어야 하는 지식은 위키·Confluence. **버전 관리 필요성** — 코드와 함께 되감겨야 하는 지식은 저장소, 시점 스냅샷이면 되는 지식은 밖.
+
+**선언하지 않는 편이 나은 경우.** 트래커가 코드와 같은 곳에 있고 이슈가 영구적이라면(같은 저장소의 GitHub Issues 등), 계획 항목은 선언하지 않는 쪽이 나을 때가 많습니다. 계획이 이슈에 남아 키를 단 모든 커밋에서 영구 링크되고, 저장소에는 머지되는 순간 낡아버릴 과정 문서가 쌓이지 않습니다. 이 저장소가 정확히 그렇게 하고 있습니다 — [#3](https://github.com/shincheolhui/wisefool-plugins/issues/3) 참조.
 
 #### 5. 커밋 컨벤션
 
@@ -426,7 +438,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 - 이슈 트래커: Jira, 프로젝트 키 ABC (전환: 진행 중=21, 완료=41)
 - 테스트 게이트: `npm test` — 머지 전 필수
 - 문서 게이트: 동작 변경 시 docs/ 하위 해당 문서 갱신
-- 계획 문서 위치: docs/plans/
+- 지식 기록 위치: 계획 → docs/plans/; 사고 기록 → Confluence "트러블슈팅" 스페이스
 - 커밋 컨벤션: Conventional Commits, 제목 50자 이내, 제목 끝에 이슈 키
 - 도메인 불변: 가격 계산식은 명시적 승인 없이 변경 금지
 ```
