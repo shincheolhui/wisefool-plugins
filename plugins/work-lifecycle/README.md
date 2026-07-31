@@ -125,7 +125,7 @@ A preference that is really about *you* rather than one project — "always just
 | **Example** | `Issue tracker: Jira, project key ABC (transitions: In Progress=21, Done=41)` |
 | **Used at** | Issue creation and In-Progress transition (before) · decision/blocker comments (during) · result comment and Done transition (after) |
 | **Additional requirement** | The tracker must actually be reachable from Claude Code — e.g. the Atlassian plugin/MCP for Jira, the GitHub plugin/MCP for GitHub Issues — and authenticated (`/mcp`) |
-| **Default when absent** | All issue steps are replaced by the session todo list. Branch names use no issue key (`fix/<slug>` form) |
+| **Default when absent** | Undecided is not a default: the skill asks once, the first time an issue would be created, and records your answer. Only once you delegate — or say you want no tracker — do all issue steps become the session todo list, with branch names carrying no issue key (`fix/<slug>` form) |
 
 #### 2. Test gate
 
@@ -153,7 +153,7 @@ A preference that is really about *you* rather than one project — "always just
 | **Example** | `Knowledge locations: plans → docs/plans/; incident records → Confluence "Troubleshooting" space; design decisions → issue comments` |
 | **Used at** | Planning (before) for spec/plan documents · the incident-record step (after) · lesson records (after) |
 | **Additional requirement** | Same as the tracker: the location must actually be reachable from Claude Code. A declared destination that cannot be reached makes the rule **fail silently** — the worst outcome |
-| **Default when absent** | Falls back to the issue (description or comment), and to the todo list when there is no tracker. The skill will **never** create a directory in your project |
+| **Default when absent** | Undecided is not a default: the skill asks once, the first time such a record is needed, and records your answer. Only once you delegate does it fall back to the issue (description or comment), and to the todo list when there is no tracker. It will **never** create a directory in your project |
 | **Compatibility** | `Plan location: <path>` (introduced in 1.2.0) is still accepted as the plan entry |
 
 Choosing a location is usually decided by two things: **audience** — developer-only knowledge belongs in the repository, next to the code and subject to review, while anything non-developers must read belongs in a wiki or Confluence; and **versioning** — knowledge that must rewind together with the code belongs in the repository, whereas a point-in-time record does not.
@@ -233,12 +233,22 @@ Claude: judges the task "large" → creates the issue at kickoff
         becomes the In-Progress issue; the rest are filed as backlog issues.
 ```
 
-**Scenario D — no tracker connected:**
+**Scenario D — nothing declared in the adapter:**
 
 ```text
-Same flow as B, except: issue steps become session todo items,
-and the branch is named fix/login-timeout (no issue key).
-Everything else — worktree, staging, push, gates, merge format — is identical.
+The first time an issue would be created, Claude stops and asks —
+it does not pick for you:
+
+  "No issue tracker is declared. Use GitHub Issues (my suggestion) /
+   another tracker / skip issues and use a todo list from now on?
+   I'll record your answer in CLAUDE.md as its own commit."
+
+Answer once and it never asks again.
+
+If you choose the todo list (or delegate): same flow as B, except
+issue steps become session todo items and the branch is
+fix/login-timeout (no issue key). Everything else — worktree,
+staging, push, gates, merge format — is identical.
 ```
 
 ### Behavior details and edge cases
@@ -263,7 +273,8 @@ This plugin contains **no executable code** — no hooks, no scripts, no MCP ser
 | Skill does not activate right after install | Plugins load at session start — restart the Claude Code session |
 | Skill not listed in `/plugin` | Check the marketplace was added (`/plugin marketplace list`), then reinstall |
 | Skill activates when you only wanted an answer | Phrase it as a question ("what do you think about…?") — questions never trigger work. If it still starts, say "question only" |
-| Issue steps do nothing | No issue tracker is connected — connect one (e.g. Atlassian/GitHub plugin + `/mcp` auth) and declare it in the `CLAUDE.md` adapter, or accept the todo-list fallback |
+| Issue steps do nothing | You delegated the tracker or told the skill you want none — it only falls back silently after you have said so. Declare a reachable tracker in the `CLAUDE.md` adapter (e.g. Atlassian/GitHub plugin + `/mcp` auth) to switch them back on |
+| You are asked where to keep issues or records, and you would rather not be | That question is asked once per key, only when the answer is first needed. To switch it off for good, declare delegation (`Knowledge locations: delegate`) — in the project's `CLAUDE.md`, or once in your global `~/.claude/CLAUDE.md` for every project |
 | Project already has its own workflow skill or procedure document | They coexist; declare the canonical document in `CLAUDE.md` and it takes precedence over this skill |
 | Behavior seems to ignore your adapter values | The adapter is read from the `CLAUDE.md` of the project being worked on — check the values are there and unambiguous (exact commands, exact keys) |
 | Want to pause the skill temporarily | `/plugin disable work-lifecycle`, re-enable with `/plugin enable work-lifecycle` |
@@ -406,7 +417,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **예시** | `이슈 트래커: Jira, 프로젝트 키 ABC (전환: 진행 중=21, 완료=41)` |
 | **쓰이는 시점** | 이슈 생성·진행 중 전환(작업 전) · 결정/막힘 댓글(작업 중) · 결과 댓글·완료 전환(작업 후) |
 | **추가 전제** | 트래커가 Claude Code 에서 실제로 접근 가능해야 합니다 — Jira 는 Atlassian 플러그인/MCP, GitHub Issues 는 GitHub 플러그인/MCP — 그리고 인증(`/mcp`) 완료 |
-| **없으면** | 이슈 단계 전부가 세션 Todo 목록으로 대체됩니다. 브랜치명은 키 없이 `fix/<슬러그>` 형식 |
+| **없으면** | 미정은 기본값이 아닙니다. 이슈를 처음 만들어야 하는 순간에 skill 이 한 번 묻고 답을 기록합니다. 위임하거나 트래커를 쓰지 않겠다고 답한 뒤에야 이슈 단계가 세션 Todo 목록으로 대체되고, 브랜치명이 키 없이 `fix/<슬러그>` 형식이 됩니다 |
 
 #### 2. 테스트 게이트
 
@@ -434,7 +445,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **예시** | `지식 기록 위치: 계획 → docs/plans/; 사고 기록 → Confluence "트러블슈팅" 스페이스; 설계 결정 → 이슈 댓글` |
 | **쓰이는 시점** | 계획 수립(작업 전)의 spec·plan 문서 · 사고 기록 단계(작업 후) · 교훈 기록(작업 후) |
 | **추가 전제** | 트래커와 동일 — 선언한 위치에 Claude Code 가 실제로 접근할 수 있어야 합니다. 도달하지 못하는 위치를 선언하면 규칙이 **조용히 실패**하며, 이게 최악입니다 |
-| **없으면** | 이슈(설명 또는 댓글)로 폴백하고, 트래커도 없으면 Todo 목록으로 갑니다. skill 이 프로젝트에 디렉토리를 **새로 만드는 일은 없습니다** |
+| **없으면** | 미정은 기본값이 아닙니다. 그 기록이 처음 필요해지는 순간에 skill 이 한 번 묻고 답을 기록합니다. 위임한 뒤에야 이슈(설명 또는 댓글)로 폴백하고, 트래커도 없으면 Todo 목록으로 갑니다. 프로젝트에 디렉토리를 **새로 만드는 일은 없습니다** |
 | **호환** | 1.2.0 에서 도입한 `계획 문서 위치: <경로>` 표기도 계획 항목 선언으로 계속 인정됩니다 |
 
 위치 선택은 대개 두 가지가 결정합니다. **청중** — 개발자만 읽는 지식은 저장소(코드 옆, 리뷰에 걸림), 비개발자도 읽어야 하는 지식은 위키·Confluence. **버전 관리 필요성** — 코드와 함께 되감겨야 하는 지식은 저장소, 시점 스냅샷이면 되는 지식은 밖.
@@ -514,12 +525,20 @@ Claude:  규모 판정 "대형" → 착수 시점에 이슈 먼저 생성
          나머지는 백로그 이슈로 등록됩니다.
 ```
 
-**시나리오 D — 트래커 미연결:**
+**시나리오 D — 어댑터에 아무것도 선언하지 않은 경우:**
 
 ```text
-B 와 같은 흐름이되: 이슈 단계가 세션 Todo 항목으로 바뀌고,
-브랜치명은 fix/login-timeout (이슈 키 없음).
-워크트리·스테이징·push·게이트·머지 형식 등 나머지는 전부 동일합니다.
+이슈를 처음 만들어야 하는 순간, Claude 는 대신 정하지 않고 멈춰 묻습니다:
+
+  "이슈 트래커가 선언되어 있지 않습니다. GitHub Issues(제 제안) /
+   다른 트래커 지정 / 앞으로 이슈 없이 Todo 로 진행 — 어느 쪽일까요?
+   답을 CLAUDE.md 에 별도 커밋으로 기록해 두겠습니다."
+
+한 번 답하면 다시 묻지 않습니다.
+
+Todo 를 택하거나 위임하면: B 와 같은 흐름이되 이슈 단계가 세션 Todo 항목으로
+바뀌고 브랜치명은 fix/login-timeout (이슈 키 없음). 워크트리·스테이징·push·
+게이트·머지 형식 등 나머지는 전부 동일합니다.
 ```
 
 ### 동작 세부와 엣지 케이스
@@ -544,7 +563,8 @@ B 와 같은 흐름이되: 이슈 단계가 세션 Todo 항목으로 바뀌고,
 | 설치 직후 skill 이 활성화되지 않음 | 플러그인은 세션 시작 시 로드됩니다 — Claude Code 세션을 재시작하세요 |
 | `/plugin` 목록에 skill 이 없음 | 마켓플레이스 등록 확인(`/plugin marketplace list`) 후 재설치 |
 | 답변만 원했는데 skill 이 작업을 시작함 | 질문형으로 물어보세요("…에 대해 어떻게 생각해요?") — 질문은 작업을 발동하지 않습니다. 그래도 시작하면 "질문입니다"라고 말하세요 |
-| 이슈 단계가 동작하지 않음 | 이슈 트래커 미연결 — 연결(Atlassian/GitHub 플러그인 + `/mcp` 인증)하고 `CLAUDE.md` 어댑터에 선언하거나, Todo 대체로 사용 |
+| 이슈 단계가 동작하지 않음 | 트래커를 위임했거나 쓰지 않겠다고 답한 상태입니다 — skill 은 그렇게 답한 뒤에야 조용히 폴백합니다. 다시 켜려면 접근 가능한 트래커를 연결(Atlassian/GitHub 플러그인 + `/mcp` 인증)하고 `CLAUDE.md` 어댑터에 선언하세요 |
+| 기록 위치를 묻는 게 번거로움 | 키마다 한 번씩, 그 답이 처음 필요해질 때만 묻습니다. 영구히 끄려면 위임을 선언하세요(`지식 기록 위치: 위임`) — 프로젝트 `CLAUDE.md` 에, 또는 모든 프로젝트에 적용하려면 전역 `~/.claude/CLAUDE.md` 에 한 번 |
 | 프로젝트에 이미 자체 워크플로 skill·절차 문서가 있음 | 공존합니다. `CLAUDE.md` 에 정본 문서를 선언하면 그 문서가 이 skill 보다 우선합니다 |
 | 어댑터 값이 무시되는 것 같음 | 어댑터는 **작업 중인 프로젝트의** `CLAUDE.md` 에서 읽습니다 — 값이 거기 있는지, 모호하지 않은지(정확한 명령어·키) 확인하세요 |
 | 일시적으로 끄고 싶음 | `/plugin disable work-lifecycle`, 다시 켜려면 `/plugin enable work-lifecycle` |
