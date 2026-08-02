@@ -1,5 +1,15 @@
 # Changelog
 
+## work-lifecycle 1.6.0 (2026-08-03)
+
+1.4.0 은 "안 정해졌으면 대신 정하지 말고 묻는다"를 보장했다. 이번에는 그 다음 사고를 막는다 — **정한 곳에 실제로 닿지 못하는 경우.** / 1.4.0 guaranteed the skill would ask rather than choose. This release closes what came next: a location that was chosen but cannot be reached.
+
+- **도달성 확인 신설** / New rule — `Reaching a declared location`. 선언된 트래커·지식 위치는 **쓰는 순간이 아니라 어댑터 확인 시점에**, 목적지에 대한 **실제 읽기 1회**로 확인한다. 플러그인·도구 이름이 있다는 것은 확인이 아니다. Confirmed with one real read at the adapter check — the presence of a plugin name is not confirmation.
+- **도달 실패는 폴백이 아니라 발견 사항** / Unreachable is a finding, not a fallback — 무엇에 못 닿았는지 말하고 대안을 제안한 뒤 사용자가 고른다. 조용한 폴백은 원래 문제보다 나쁘다: 기록이 쓰인 것처럼 보이지만 없다. Falling back silently is worse than never having asked.
+- **가리킬 수 있어야 기록이 끝난 것** / A record is done only when you can point to it — 이슈 URL·페이지 URL·커밋된 경로를 이슈 결과 댓글에 싣는다. 참조를 못 내놓으면 성공 대신 "기록이 일어나지 않았다"고 보고한다. If no reference can be produced, that is reported instead of success.
+- 배경 / Background — README 는 전제조건과 어댑터 1·4번, **세 곳에서** "실제로 접근 가능해야 한다"고 약속해 왔는데 정본에는 도달성이라는 개념 자체가 없었다. The README had promised this in three places while the canon never mentioned reachability.
+- 부수 / Also — `1.4` 가 `Pre-reads + adapter check` 로 확장됐다. 체크리스트에만 있고 번호 절차에는 없던 어댑터 확인 단계가 정본에 명시된다. The adapter check existed only in the checklist, never in the numbered steps.
+
 ## work-lifecycle 1.5.0 (2026-07-31)
 
 문서만 바뀐 릴리스다. 절차 자체는 1.4.0 과 동일하되, 제품 설명이 실체를 따라오지 못한 부분을 맞췄다. / A documentation release: the procedure is unchanged from 1.4.0, but the product description now matches what the skill actually does.
