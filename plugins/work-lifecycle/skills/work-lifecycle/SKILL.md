@@ -38,6 +38,14 @@ Writing to CLAUDE.md is a privilege with three limits — carry them into the pr
 - Keep that record as **its own commit**, so it is visible rather than buried in unrelated changes.
 - Even when the choice is delegated, **report where the record went.** "Decide it for me" is not "do it behind my back".
 
+### Reaching a declared location
+
+A declared tracker or knowledge location is worth only what this session can actually reach. Confirm it before the work depends on it — the same reason `git fetch origin` comes before the worktree.
+
+- **Confirm at the adapter check**, not at the moment of writing. Confirming means **one real read** against the destination (list the tracker's projects, open the space, resolve the path). The presence of a plugin or tool name is not confirmation.
+- **Unreachable is a finding, not a fallback.** Say what could not be reached, propose where the record could go instead, and let the user choose. Falling back silently is worse than never having asked: the record looks written and is not.
+- **A record is done only when you can point to it** — an issue URL, a page URL, a committed path. Carry that reference into the issue's result comment. If you cannot produce one, the record did not happen; report that instead of reporting success.
+
 ## Terms and criteria
 
 ### Task size table
@@ -75,7 +83,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 1. **Bring main up to date:** `git fetch origin` (required before creating the worktree).
 2. **Create the worktree and branch:** work in a worktree based on main. Keep the main working tree clean at all times. If the harness provides a worktree tool (e.g. `EnterWorktree`), use it and take its default location; otherwise create one under `.claude/worktrees/` — `git worktree add .claude/worktrees/<branch-name> -b <branch-name> origin/main`.
 3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores).
-4. **Pre-reads + skill activation:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work.
+4. **Pre-reads + adapter check:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work, then read the adapter — resolve an undecided tracker or knowledge location by asking, and confirm that a declared one is reachable (both above).
 5. **Plan:** as prescribed by the task size table (todo / plan / brainstorm→spec→plan).
    - **Where the plan lives:** put spec/plan documents in the project's plan location. When that location is a repository path, write them inside the worktree and commit them there; when it is an external space, create them there. Either way they are planning artifacts, not implementation changes, so they may precede the issue. When no location is declared, do **not** invent a directory in that project — carry the plan in the issue description (or the todo list) instead.
 6. **Create the issue** (when a tracker is defined):
@@ -109,7 +117,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
    The merge commit title is **issue key + summary**: `Merge: <issue-key> <title>` (so issues remain traceable from main's history). On conflict, resolve it by reverse-merging main into the work branch (never rebase), then retry.
 5. **Close the issue:** post a result-summary comment (non-developer terms + commit hashes), then transition the status to done.
 6. **Incident record:** if this task was an **incident** — a bug, misconfiguration, or operational mistake that caused *actual* damage: a wrong result reaching users or an external system, data loss or corruption, an outage, or a manual intervention to recover — write one record in the project's incident location. Template: **symptom → cause → fix → prevention → related assets** (issue, commits, canonical documents). Write it for a non-developer reader, and link to canonical documents rather than restating them. Link the record from the issue so it stays traceable. Ordinary feature, refactor and documentation work is **not** an incident, and neither is a near miss — filing those buries the real ones in noise.
-7. **Sync memory and records:** if there are lessons worth keeping (findings, feedback, near misses), record them in the project's knowledge locations — its memory and documents.
+7. **Sync memory and records:** if there are lessons worth keeping (findings, feedback, near misses), record them in the project's knowledge locations — its memory and documents. Each record needs a reference you can point to (see "Reaching a declared location").
 8. **Clean up the worktree (keep the branch):** `git worktree remove <path>` removes **only the worktree**. The branch is kept both locally and on the remote (history and rollback point).
 
 ## Core invariants (summary)
@@ -124,12 +132,12 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 ```
 [Triage]  Question/investigation → report only. Proceed below only on a kickoff signal. Trivial → the issue may be skipped
 [Before]  fetch → worktree (based on main) → temporary branch name → pre-reads
-          → adapter check (an undecided tracker or knowledge location is resolved by asking, once) → plan (by size)
+          → adapter check (undecided tracker/knowledge location → ask once; declared one → confirm it is reachable) → plan (by size)
           → create issue + in progress (right after the plan is confirmed, before the first substantive action) → rename branch with the key
 [During]  meaningful-unit commits (stage only your own files, individually) → first push after the rename, then push on every commit
           → notable findings as issue comments → capture side-findings immediately
 [After]   test gate → real e2e verification (never mock-only) → docs sync
           → (user confirmation) merge --no-ff "Merge: <issue-key> <title>" + push
-          → close the issue → incident record (only if damage actually occurred) → sync records
+          → close the issue → incident record (only if damage actually occurred) → sync records (each with a reference you can point to)
           → remove only the worktree (keep the branch)
 ```

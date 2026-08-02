@@ -45,7 +45,7 @@ This skill turns each of those into a guarantee, one for one:
 
 Every turn starts with **triage**: questions get investigation and a report only (no files touched); an explicit kickoff signal ("go ahead", "implement it") enters the work procedure; tiny fixes (typos, a few lines) may skip the ceremony.
 
-Once work starts: **before** (fetch → worktree + branch → plan sized to the task → tracker issue → branch renamed with the issue key) → **during** (meaningful-unit commits, own-files-only staging, push every commit, decisions logged as issue comments) → **after** (test gate → real e2e verification → docs sync → user-approved `--no-ff` merge → issue closed → an incident record if damage actually occurred → worktree removed, branch kept).
+Once work starts: **before** (fetch → worktree + branch → adapter check → plan sized to the task → tracker issue → branch renamed with the issue key) → **during** (meaningful-unit commits, own-files-only staging, push every commit, decisions logged as issue comments) → **after** (test gate → real e2e verification → docs sync → user-approved `--no-ff` merge → issue closed → an incident record if damage actually occurred → worktree removed, branch kept).
 
 > **The canonical procedure is [SKILL.md](skills/work-lifecycle/SKILL.md).** It is a human-readable markdown file and it is *exactly* what the model follows — the spec and the behavior are the same document. This README intentionally does not restate it; when in doubt about any rule, SKILL.md is the authority.
 
@@ -79,7 +79,7 @@ Once work starts: **before** (fetch → worktree + branch → plan sized to the 
 | Git **2.5+** (`git worktree` support) | Worktree isolation | Update git; the plugin itself is pure markdown, any OS works |
 | A remote (`origin`) you can push to | Push-every-commit, remote backup | Push steps are skipped in a local-only repository; everything else still applies |
 | *(Optional)* Issue tracker reachable from Claude Code | Issue create / comment / close steps | Falls back to session todo lists — see [adapter reference](#project-adapter-reference) |
-| *(Optional)* A reachable place to keep records — a repository path, a wiki, a Confluence space | Plan documents, incident records | Records fall back to the issue. **A location you declare but Claude Code cannot reach makes the rule fail silently** — confirm access before declaring one |
+| *(Optional)* A reachable place to keep records — a repository path, a wiki, a Confluence space | Plan documents, incident records | Records fall back to the issue. **A location you declare but Claude Code cannot reach would make the rule fail silently** — so the skill checks a declared location at kickoff and tells you when it cannot get through, rather than quietly writing somewhere else |
 | *(Optional)* Planning skills (e.g. superpowers) | Spec/plan documents for large tasks | Specs and plans are written as plain markdown documents |
 
 ### Usage
@@ -89,7 +89,7 @@ There is no command to run in daily use — the skill activates on its own:
 | You say | What happens |
 |---|---|
 | A question — "why does login fail?", "is this possible?" | Investigation and a report. **No files are touched.** Even if a fix is obvious, it is not applied until you say so |
-| A kickoff signal — "go ahead", "implement it", "fix it" | The *before* steps run: fetch → worktree + branch → plan sized to the task → tracker issue created and moved to In Progress → branch renamed with the issue key. Then implementation proceeds under the *during* rules |
+| A kickoff signal — "go ahead", "implement it", "fix it" | The *before* steps run: fetch → worktree + branch → adapter check (an undecided location is asked about once; a declared one is confirmed reachable) → plan sized to the task → tracker issue created and moved to In Progress → branch renamed with the issue key. Then implementation proceeds under the *during* rules |
 | A finish signal — "merge it", "wrap up" | The *after* steps run: test gate → real e2e verification → docs sync → merge (asks for your approval first) → issue closed → an incident record if damage actually occurred → worktree removed, branch kept |
 
 Signals are recognized in **any language**. To invoke the skill explicitly: `/work-lifecycle:work-lifecycle`.
@@ -127,7 +127,7 @@ A preference that is really about *you* rather than one project — "always just
 | **What to write** | Tracker type, project key, and how to change status (transition names or IDs) |
 | **Example** | `Issue tracker: Jira, project key ABC (transitions: In Progress=21, Done=41)` |
 | **Used at** | Issue creation and In-Progress transition (before) · decision/blocker comments (during) · result comment and Done transition (after) |
-| **Additional requirement** | The tracker must actually be reachable from Claude Code — e.g. the Atlassian plugin/MCP for Jira, the GitHub plugin/MCP for GitHub Issues — and authenticated (`/mcp`) |
+| **Additional requirement** | The tracker must actually be reachable from Claude Code — e.g. the Atlassian plugin/MCP for Jira, the GitHub plugin/MCP for GitHub Issues — and authenticated (`/mcp`). **The skill confirms this itself** with one real read at kickoff, and tells you if it cannot get through |
 | **Default when absent** | Undecided is not a default: the skill asks once, the first time an issue would be created, and records your answer. Only once you delegate — or say you want no tracker — do all issue steps become the session todo list, with branch names carrying no issue key (`fix/<slug>` form) |
 
 #### 2. Test gate
@@ -155,7 +155,7 @@ A preference that is really about *you* rather than one project — "always just
 | **What to write** | Where each kind of record is kept. A location may be a repository path, an external space (wiki, Confluence), or the tracker itself — issue management and knowledge keeping do not have to live in the same system |
 | **Example** | `Knowledge locations: plans → docs/plans/; incident records → Confluence "Troubleshooting" space; design decisions → issue comments` |
 | **Used at** | Planning (before) for spec/plan documents · the incident-record step (after) · lesson records (after) |
-| **Additional requirement** | Same as the tracker: the location must actually be reachable from Claude Code. A declared destination that cannot be reached makes the rule **fail silently** — the worst outcome |
+| **Additional requirement** | Same as the tracker: the location must actually be reachable from Claude Code. A destination that is declared but cannot be reached would make the rule **fail silently** — the worst outcome — so the skill checks it at kickoff instead of at writing time, and an unreachable location is **reported to you, never quietly substituted**. It also finishes each record with a reference it can point to (an issue URL, a page URL, a committed path); if it cannot produce one, it says the record did not happen rather than reporting success |
 | **Default when absent** | Undecided is not a default: the skill asks once, the first time such a record is needed, and records your answer. Only once you delegate does it fall back to the issue (description or comment), and to the todo list when there is no tracker. It will **never** create a directory in your project |
 | **Compatibility** | `Plan location: <path>` (introduced in 1.2.0) is still accepted as the plan entry |
 
@@ -278,6 +278,7 @@ This plugin contains **no executable code** — no hooks, no scripts, no MCP ser
 | Skill activates when you only wanted an answer | Phrase it as a question ("what do you think about…?") — questions never trigger work. If it still starts, say "question only" |
 | Issue steps do nothing | You delegated the tracker or told the skill you want none — it only falls back silently after you have said so. Declare a reachable tracker in the `CLAUDE.md` adapter (e.g. Atlassian/GitHub plugin + `/mcp` auth) to switch them back on |
 | You are asked where to keep issues or records, and you would rather not be | That question is asked once per key, only when the answer is first needed. To switch it off for good, declare delegation (`Knowledge locations: delegate`) — in the project's `CLAUDE.md`, or once in your global `~/.claude/CLAUDE.md` for every project |
+| You declared a location (a Confluence space, say) but no record ever appears there | The skill checks a declared location at kickoff and reports what it could not reach — if you saw no such report, the destination was reached and the record carries a reference in the issue's result comment. If you did see one, connect the plugin/MCP for that destination and authenticate (`/mcp`); the skill will not write somewhere else on its own |
 | Project already has its own workflow skill or procedure document | They coexist; declare the canonical document in `CLAUDE.md` and it takes precedence over this skill |
 | Behavior seems to ignore your adapter values | The adapter is read from the `CLAUDE.md` of the project being worked on — check the values are there and unambiguous (exact commands, exact keys) |
 | Want to pause the skill temporarily | `/plugin disable work-lifecycle`, re-enable with `/plugin enable work-lifecycle` |
@@ -340,7 +341,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 모든 턴은 **분류**로 시작합니다: 질문은 조사·보고만(파일 무변경), 명시적 착수 신호("진행합시다", "구현해주세요")에만 작업 절차 진입, 잔손질(오탈자·수 줄)은 절차 생략 가능.
 
-작업이 시작되면: **작업 전**(fetch → 워크트리+브랜치 → 규모별 계획 → 트래커 이슈 → 이슈 키로 브랜치 rename) → **작업 중**(의미 단위 커밋, 내 파일만 스테이징, 매 커밋 push, 결정 사항 이슈 댓글) → **작업 후**(테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 사용자 승인 후 `--no-ff` 머지 → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존).
+작업이 시작되면: **작업 전**(fetch → 워크트리+브랜치 → 어댑터 확인 → 규모별 계획 → 트래커 이슈 → 이슈 키로 브랜치 rename) → **작업 중**(의미 단위 커밋, 내 파일만 스테이징, 매 커밋 push, 결정 사항 이슈 댓글) → **작업 후**(테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 사용자 승인 후 `--no-ff` 머지 → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존).
 
 > **절차의 정본은 [SKILL.md](skills/work-lifecycle/SKILL.md) 입니다** (본문은 영어). 사람이 읽을 수 있는 마크다운이면서 모델이 따르는 것 *그 자체*라, 명세와 동작이 같은 문서입니다. 이 README 는 절차를 중복 서술하지 않습니다 — 규칙이 궁금하면 SKILL.md 가 정답입니다.
 
@@ -374,7 +375,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 | Git **2.5 이상** (`git worktree` 지원) | 워크트리 격리 | git 업데이트. 플러그인 자체는 마크다운뿐이라 OS 무관 |
 | push 가능한 원격(`origin`) | 매 커밋 push·원격 백업 | 로컬 전용 저장소면 push 단계만 생략, 나머지 동일 |
 | *(선택)* Claude Code 에서 접근 가능한 이슈 트래커 | 이슈 생성·댓글·완료 단계 | 세션 Todo 목록으로 대체 — [어댑터 레퍼런스](#프로젝트-어댑터-레퍼런스) 참조 |
-| *(선택)* 기록을 둘 접근 가능한 자리 — 저장소 경로·위키·Confluence 스페이스 | 계획 문서, 사고 기록 | 기록이 이슈로 폴백됩니다. **선언했는데 Claude Code 가 도달하지 못하면 규칙이 조용히 실패합니다** — 선언 전에 접근을 확인하세요 |
+| *(선택)* 기록을 둘 접근 가능한 자리 — 저장소 경로·위키·Confluence 스페이스 | 계획 문서, 사고 기록 | 기록이 이슈로 폴백됩니다. **선언했는데 Claude Code 가 도달하지 못하면 규칙이 조용히 실패하므로**, skill 이 착수 시점에 선언된 위치를 확인하고 닿지 못하면 알려 줍니다 — 말없이 다른 곳에 쓰지 않습니다 |
 | *(선택)* 계획 보조 skill (superpowers 등) | 대형 작업의 spec/plan | 일반 마크다운 문서로 작성 |
 
 ### 사용법
@@ -384,7 +385,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 | 사용자가 말하면 | 일어나는 일 |
 |---|---|
 | 질문 — "로그인이 왜 실패하죠?", "가능해요?" | 조사와 보고. **파일을 건드리지 않습니다.** 수정안이 자명해도 지시 전에는 적용하지 않습니다 |
-| 착수 신호 — "진행합시다", "구현해주세요", "고쳐주세요" | *작업 전* 절차 실행: fetch → 워크트리+브랜치 → 규모별 계획 → 트래커 이슈 생성·진행 중 전환 → 이슈 키로 브랜치 rename. 이후 *작업 중* 규율로 구현 |
+| 착수 신호 — "진행합시다", "구현해주세요", "고쳐주세요" | *작업 전* 절차 실행: fetch → 워크트리+브랜치 → 어댑터 확인(미정 위치는 한 번 묻고, 선언된 위치는 도달 가능한지 확인) → 규모별 계획 → 트래커 이슈 생성·진행 중 전환 → 이슈 키로 브랜치 rename. 이후 *작업 중* 규율로 구현 |
 | 마무리 신호 — "머지", "완료 처리" | *작업 후* 절차 실행: 테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 머지(먼저 승인을 요청) → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존 |
 
 신호는 **언어 불문** 인식됩니다. 명시적으로 부르려면: `/work-lifecycle:work-lifecycle`.
@@ -422,7 +423,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **적을 것** | 트래커 종류, 프로젝트 키, 상태 전환 방법(전환 이름 또는 ID) |
 | **예시** | `이슈 트래커: Jira, 프로젝트 키 ABC (전환: 진행 중=21, 완료=41)` |
 | **쓰이는 시점** | 이슈 생성·진행 중 전환(작업 전) · 결정/막힘 댓글(작업 중) · 결과 댓글·완료 전환(작업 후) |
-| **추가 전제** | 트래커가 Claude Code 에서 실제로 접근 가능해야 합니다 — Jira 는 Atlassian 플러그인/MCP, GitHub Issues 는 GitHub 플러그인/MCP — 그리고 인증(`/mcp`) 완료 |
+| **추가 전제** | 트래커가 Claude Code 에서 실제로 접근 가능해야 합니다 — Jira 는 Atlassian 플러그인/MCP, GitHub Issues 는 GitHub 플러그인/MCP — 그리고 인증(`/mcp`) 완료. **이 확인은 skill 이 직접 합니다** — 착수 시점에 실제 읽기 1회로 확인하고, 닿지 못하면 알려 줍니다 |
 | **없으면** | 미정은 기본값이 아닙니다. 이슈를 처음 만들어야 하는 순간에 skill 이 한 번 묻고 답을 기록합니다. 위임하거나 트래커를 쓰지 않겠다고 답한 뒤에야 이슈 단계가 세션 Todo 목록으로 대체되고, 브랜치명이 키 없이 `fix/<슬러그>` 형식이 됩니다 |
 
 #### 2. 테스트 게이트
@@ -450,7 +451,7 @@ skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 �
 | **적을 것** | 기록 종류별로 어디에 남길지. 소재는 저장소 경로일 수도, 외부 공간(위키·Confluence)일 수도, 트래커 자신일 수도 있습니다 — 이슈를 관리하는 지점과 지식을 쌓는 지점이 같은 시스템일 필요는 없습니다 |
 | **예시** | `지식 기록 위치: 계획 → docs/plans/; 사고 기록 → Confluence "트러블슈팅" 스페이스; 설계 결정 → 이슈 댓글` |
 | **쓰이는 시점** | 계획 수립(작업 전)의 spec·plan 문서 · 사고 기록 단계(작업 후) · 교훈 기록(작업 후) |
-| **추가 전제** | 트래커와 동일 — 선언한 위치에 Claude Code 가 실제로 접근할 수 있어야 합니다. 도달하지 못하는 위치를 선언하면 규칙이 **조용히 실패**하며, 이게 최악입니다 |
+| **추가 전제** | 트래커와 동일 — 선언한 위치에 Claude Code 가 실제로 접근할 수 있어야 합니다. 선언했는데 도달하지 못하면 규칙이 **조용히 실패**하고 이게 최악이므로, skill 은 쓰는 순간이 아니라 착수 시점에 확인하고 **도달 실패를 사용자에게 알립니다 — 조용히 다른 곳으로 대체하지 않습니다.** 또한 기록은 가리킬 수 있는 참조(이슈 URL·페이지 URL·커밋된 경로)가 있어야 끝난 것으로 보며, 내놓지 못하면 성공 대신 기록이 일어나지 않았다고 보고합니다 |
 | **없으면** | 미정은 기본값이 아닙니다. 그 기록이 처음 필요해지는 순간에 skill 이 한 번 묻고 답을 기록합니다. 위임한 뒤에야 이슈(설명 또는 댓글)로 폴백하고, 트래커도 없으면 Todo 목록으로 갑니다. 프로젝트에 디렉토리를 **새로 만드는 일은 없습니다** |
 | **호환** | 1.2.0 에서 도입한 `계획 문서 위치: <경로>` 표기도 계획 항목 선언으로 계속 인정됩니다 |
 
@@ -571,6 +572,7 @@ Todo 를 택하거나 위임하면: B 와 같은 흐름이되 이슈 단계가 �
 | 답변만 원했는데 skill 이 작업을 시작함 | 질문형으로 물어보세요("…에 대해 어떻게 생각해요?") — 질문은 작업을 발동하지 않습니다. 그래도 시작하면 "질문입니다"라고 말하세요 |
 | 이슈 단계가 동작하지 않음 | 트래커를 위임했거나 쓰지 않겠다고 답한 상태입니다 — skill 은 그렇게 답한 뒤에야 조용히 폴백합니다. 다시 켜려면 접근 가능한 트래커를 연결(Atlassian/GitHub 플러그인 + `/mcp` 인증)하고 `CLAUDE.md` 어댑터에 선언하세요 |
 | 기록 위치를 묻는 게 번거로움 | 키마다 한 번씩, 그 답이 처음 필요해질 때만 묻습니다. 영구히 끄려면 위임을 선언하세요(`지식 기록 위치: 위임`) — 프로젝트 `CLAUDE.md` 에, 또는 모든 프로젝트에 적용하려면 전역 `~/.claude/CLAUDE.md` 에 한 번 |
+| 위치를 선언했는데(예: Confluence 스페이스) 거기에 아무 기록도 안 생김 | skill 은 착수 시점에 선언된 위치를 확인하고 닿지 못한 대상을 보고합니다 — 그런 보고가 없었다면 목적지에는 닿았고, 기록의 참조가 이슈 결과 댓글에 실려 있습니다. 보고를 받았다면 해당 목적지의 플러그인/MCP 를 연결하고 인증(`/mcp`)하세요. skill 이 스스로 다른 곳에 쓰지는 않습니다 |
 | 프로젝트에 이미 자체 워크플로 skill·절차 문서가 있음 | 공존합니다. `CLAUDE.md` 에 정본 문서를 선언하면 그 문서가 이 skill 보다 우선합니다 |
 | 어댑터 값이 무시되는 것 같음 | 어댑터는 **작업 중인 프로젝트의** `CLAUDE.md` 에서 읽습니다 — 값이 거기 있는지, 모호하지 않은지(정확한 명령어·키) 확인하세요 |
 | 일시적으로 끄고 싶음 | `/plugin disable work-lifecycle`, 다시 켜려면 `/plugin enable work-lifecycle` |
