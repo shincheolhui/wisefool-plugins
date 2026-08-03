@@ -1,5 +1,12 @@
 # Changelog
 
+## work-lifecycle 1.7.0 (2026-08-03)
+
+1.6.0 을 다른 프로젝트에서 처음 실사용한 결과에서 나온 수정이다. 둘 다 새 규칙이 아니라 **정본이 스스로 모순되거나 비워 둔 자리**를 메운 것이다. / Both fixes come from the first real use of 1.6.0 in another project — neither adds a rule; both close a place where the canon contradicted itself or said nothing.
+
+- **브랜치 이름 규약이 워크트리 도구에 덮이던 문제** / Branch naming no longer loses to the worktree tool — `1.2` 는 "하네스 워크트리 도구를 쓰라"고 하고 `1.3` 은 `<접두사>/<슬러그>` 를 요구하는데, 그 도구는 브랜치를 `worktree-<이름>` 으로 짓는다. 이제 **도구의 기본 위치는 받되 이름은 받지 않고** `git branch -m` 으로 규약 형식으로 바꾼다. The tool's default location is taken as given; its branch name is not.
+- **어댑터를 읽고 쓰는 파일** / The adapter file — CLAUDE.md 만 지목하던 것을 **그 프로젝트가 이미 쓰는 지시 파일**(`AGENTS.md`, `GEMINI.md` 등)까지로 넓혔다. 있는 파일에 쓰고, 그 옆에 두 번째 지시 파일을 만들지 않는다. Reads and writes whichever instruction file the project already has, and never creates a second one beside it.
+
 ## work-lifecycle 1.6.0 (2026-08-03)
 
 1.4.0 은 "안 정해졌으면 대신 정하지 말고 묻는다"를 보장했다. 이번에는 그 다음 사고를 막는다 — **정한 곳에 실제로 닿지 못하는 경우.** / 1.4.0 guaranteed the skill would ask rather than choose. This release closes what came next: a location that was chosen but cannot be reached.
