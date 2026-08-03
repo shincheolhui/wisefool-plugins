@@ -104,7 +104,7 @@ Signals are recognized in **any language**. To invoke the skill explicitly: `/wo
 
 ### Project adapter reference
 
-The skill reads project-specific values from the **`CLAUDE.md` of the project it is running in**. Every key is optional — a safe default applies when a key is absent. Write them in plain prose or bullets; there is no rigid syntax, but each value must be unambiguous (exact commands, exact keys).
+The skill reads project-specific values from the **`CLAUDE.md` of the project it is running in** — or from whatever file that project already uses for agent instructions (`AGENTS.md`, `GEMINI.md`, …). It reads and writes the one that is there and will not create a second instruction file beside it. Every key is optional — a safe default applies when a key is absent. Write them in plain prose or bullets; there is no rigid syntax, but each value must be unambiguous (exact commands, exact keys).
 
 **Three states, not two.** A key is *declared* (the skill follows it), *delegated* (you wrote something like `Knowledge locations: delegate` — the skill decides and tells you what it chose), or *undecided* (nothing written). For most keys, undecided just means the default. But for the two keys that decide **where your issues and knowledge live**, undecided is not taken as permission to choose for you — the skill asks once, at the moment the answer is first needed, and records your answer so it never asks again.
 
@@ -280,7 +280,7 @@ This plugin contains **no executable code** — no hooks, no scripts, no MCP ser
 | You are asked where to keep issues or records, and you would rather not be | That question is asked once per key, only when the answer is first needed. To switch it off for good, declare delegation (`Knowledge locations: delegate`) — in the project's `CLAUDE.md`, or once in your global `~/.claude/CLAUDE.md` for every project |
 | You declared a location (a Confluence space, say) but no record ever appears there | The skill checks a declared location at kickoff and reports what it could not reach — if you saw no such report, the destination was reached and the record carries a reference in the issue's result comment. If you did see one, connect the plugin/MCP for that destination and authenticate (`/mcp`); the skill will not write somewhere else on its own |
 | Project already has its own workflow skill or procedure document | They coexist; declare the canonical document in `CLAUDE.md` and it takes precedence over this skill |
-| Behavior seems to ignore your adapter values | The adapter is read from the `CLAUDE.md` of the project being worked on — check the values are there and unambiguous (exact commands, exact keys) |
+| Behavior seems to ignore your adapter values | The adapter is read from the `CLAUDE.md` of the project being worked on — or from the instruction file that project already uses (`AGENTS.md`, …). Check the values are in that file and unambiguous (exact commands, exact keys) |
 | Want to pause the skill temporarily | `/plugin disable work-lifecycle`, re-enable with `/plugin enable work-lifecycle` |
 
 ### Update / Uninstall
@@ -400,7 +400,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 ### 프로젝트 어댑터 레퍼런스
 
-skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 값을 읽습니다. 모든 키는 선택 사항이고, 없으면 안전한 기본값으로 동작합니다. 형식 제약은 없지만(산문·불릿 무방) 값 자체는 모호하지 않아야 합니다 (정확한 명령어, 정확한 키).
+skill 은 **작업 중인 프로젝트의 `CLAUDE.md`** 에서 프로젝트별 값을 읽습니다 — 또는 그 프로젝트가 이미 쓰고 있는 에이전트 지시 파일(`AGENTS.md`, `GEMINI.md` 등)에서. 있는 파일을 읽고 거기에 쓰며, 그 옆에 두 번째 지시 파일을 만들지 않습니다. 모든 키는 선택 사항이고, 없으면 안전한 기본값으로 동작합니다. 형식 제약은 없지만(산문·불릿 무방) 값 자체는 모호하지 않아야 합니다 (정확한 명령어, 정확한 키).
 
 **상태는 둘이 아니라 셋입니다.** 키는 *선언됨*(skill 이 그대로 따름), *위임됨*(`지식 기록 위치: 위임` 처럼 적어 둔 경우 — skill 이 정하되 어디로 정했는지 알려 줌), *미정*(아무것도 안 적음) 중 하나입니다. 대부분의 키는 미정이면 그냥 기본값입니다. 하지만 **당신의 이슈와 지식이 어디에 쌓일지**를 정하는 두 키는, 미정을 "대신 정해도 좋다"로 받아들이지 않습니다 — skill 이 그 답이 처음 필요해지는 순간에 **한 번만** 묻고, 답을 기록해 다시는 묻지 않습니다.
 
@@ -574,7 +574,7 @@ Todo 를 택하거나 위임하면: B 와 같은 흐름이되 이슈 단계가 �
 | 기록 위치를 묻는 게 번거로움 | 키마다 한 번씩, 그 답이 처음 필요해질 때만 묻습니다. 영구히 끄려면 위임을 선언하세요(`지식 기록 위치: 위임`) — 프로젝트 `CLAUDE.md` 에, 또는 모든 프로젝트에 적용하려면 전역 `~/.claude/CLAUDE.md` 에 한 번 |
 | 위치를 선언했는데(예: Confluence 스페이스) 거기에 아무 기록도 안 생김 | skill 은 착수 시점에 선언된 위치를 확인하고 닿지 못한 대상을 보고합니다 — 그런 보고가 없었다면 목적지에는 닿았고, 기록의 참조가 이슈 결과 댓글에 실려 있습니다. 보고를 받았다면 해당 목적지의 플러그인/MCP 를 연결하고 인증(`/mcp`)하세요. skill 이 스스로 다른 곳에 쓰지는 않습니다 |
 | 프로젝트에 이미 자체 워크플로 skill·절차 문서가 있음 | 공존합니다. `CLAUDE.md` 에 정본 문서를 선언하면 그 문서가 이 skill 보다 우선합니다 |
-| 어댑터 값이 무시되는 것 같음 | 어댑터는 **작업 중인 프로젝트의** `CLAUDE.md` 에서 읽습니다 — 값이 거기 있는지, 모호하지 않은지(정확한 명령어·키) 확인하세요 |
+| 어댑터 값이 무시되는 것 같음 | 어댑터는 **작업 중인 프로젝트의** `CLAUDE.md` — 또는 그 프로젝트가 이미 쓰는 지시 파일(`AGENTS.md` 등) — 에서 읽습니다. 값이 그 파일에 있는지, 모호하지 않은지(정확한 명령어·키) 확인하세요 |
 | 일시적으로 끄고 싶음 | `/plugin disable work-lifecycle`, 다시 켜려면 `/plugin enable work-lifecycle` |
 
 ### 업데이트 / 제거
