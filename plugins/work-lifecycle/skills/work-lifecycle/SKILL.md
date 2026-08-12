@@ -115,10 +115,11 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
    git push origin main
    ```
    The merge commit title is **issue key + summary**: `Merge: <issue-key> <title>` (so issues remain traceable from main's history). On conflict, resolve it by reverse-merging main into the work branch (never rebase), then retry.
-5. **Close the issue:** post a result-summary comment (non-developer terms + commit hashes), then transition the status to done.
-6. **Incident record:** if this task was an **incident** — a bug, misconfiguration, or operational mistake that caused *actual* damage: a wrong result reaching users or an external system, data loss or corruption, an outage, or a manual intervention to recover — write one record in the project's incident location. Template: **symptom → cause → fix → prevention → related assets** (issue, commits, canonical documents). Write it for a non-developer reader, and link to canonical documents rather than restating them. Link the record from the issue so it stays traceable. Ordinary feature, refactor and documentation work is **not** an incident, and neither is a near miss — filing those buries the real ones in noise.
-7. **Sync memory and records:** if there are lessons worth keeping (findings, feedback, near misses), record them in the project's knowledge locations — its memory and documents. Each record needs a reference you can point to (see "Reaching a declared location").
-8. **Clean up the worktree (keep the branch):** `git worktree remove <path>` removes **only the worktree**. The branch is kept both locally and on the remote (history and rollback point).
+5. **Incident verdict — say it, every time:** answer out loud, in the closing summary, **"did this task involve actual damage? YES or NO"** plus a one-line reason. An unstated verdict is not a NO; it is a skipped step. An **incident** is a bug, misconfiguration, or operational mistake that caused *actual* damage: a wrong result reaching users or an external system, data loss or corruption, an outage, or a manual intervention to recover. Ordinary feature, refactor and documentation work is **not** an incident, and neither is a near miss — filing those buries the real ones in noise.
+6. **Incident record (on YES only) — before the issue is closed:** write one record in the project's incident location, following whatever target and template that project defines; when it defines none, use **symptom → cause → fix → prevention → related assets** (issue, commits, canonical documents). Write it for a non-developer reader, and link to canonical documents rather than restating them. Link the record from the issue. **This is a precondition for closing, not a follow-up** — an issue that reads as done is the moment the record stops being written.
+7. **Close the issue:** post a result-summary comment (non-developer terms + commit hashes, and the incident verdict from step 5), then transition the status to done.
+8. **Sync memory and records:** if there are lessons worth keeping (findings, feedback, near misses), record them in the project's knowledge locations — its memory and documents. Each record needs a reference you can point to (see "Reaching a declared location").
+9. **Clean up the worktree (keep the branch):** `git worktree remove <path>` removes **only the worktree**. The branch is kept both locally and on the remote (history and rollback point).
 
 ## Core invariants (summary)
 
@@ -138,6 +139,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
           → notable findings as issue comments → capture side-findings immediately
 [After]   test gate → real e2e verification (never mock-only) → docs sync
           → (user confirmation) merge --no-ff "Merge: <issue-key> <title>" + push
-          → close the issue → incident record (only if damage actually occurred) → sync records (each with a reference you can point to)
+          → incident verdict stated: YES/NO + one line (never left unsaid) → on YES the record is written first
+          → close the issue → sync records (each with a reference you can point to)
           → remove only the worktree (keep the branch)
 ```
