@@ -45,7 +45,7 @@ This skill turns each of those into a guarantee, one for one:
 
 Every turn starts with **triage**: questions get investigation and a report only (no files touched); an explicit kickoff signal ("go ahead", "implement it") enters the work procedure; tiny fixes (typos, a few lines) may skip the ceremony.
 
-Once work starts: **before** (fetch → worktree + branch → adapter check → plan sized to the task → tracker issue → branch renamed with the issue key) → **during** (meaningful-unit commits, own-files-only staging, push every commit, decisions logged as issue comments) → **after** (test gate → real e2e verification → docs sync → user-approved `--no-ff` merge → issue closed → an incident record if damage actually occurred → worktree removed, branch kept).
+Once work starts: **before** (fetch → worktree + branch → adapter check → plan sized to the task → tracker issue → branch renamed with the issue key) → **during** (meaningful-unit commits, own-files-only staging, push every commit, decisions logged as issue comments) → **after** (test gate → real e2e verification → docs sync → user-approved `--no-ff` merge → a stated incident verdict, and the record written first when it is YES → issue closed → worktree removed, branch kept).
 
 > **The canonical procedure is [SKILL.md](skills/work-lifecycle/SKILL.md).** It is a human-readable markdown file and it is *exactly* what the model follows — the spec and the behavior are the same document. This README intentionally does not restate it; when in doubt about any rule, SKILL.md is the authority.
 
@@ -90,7 +90,7 @@ There is no command to run in daily use — the skill activates on its own:
 |---|---|
 | A question — "why does login fail?", "is this possible?" | Investigation and a report. **No files are touched.** Even if a fix is obvious, it is not applied until you say so |
 | A kickoff signal — "go ahead", "implement it", "fix it" | The *before* steps run: fetch → worktree + branch → adapter check (an undecided location is asked about once; a declared one is confirmed reachable) → plan sized to the task → tracker issue created and moved to In Progress → branch renamed with the issue key. Then implementation proceeds under the *during* rules |
-| A finish signal — "merge it", "wrap up" | The *after* steps run: test gate → real e2e verification → docs sync → merge (asks for your approval first) → issue closed → an incident record if damage actually occurred → worktree removed, branch kept |
+| A finish signal — "merge it", "wrap up" | The *after* steps run: test gate → real e2e verification → docs sync → merge (asks for your approval first) → an incident verdict stated out loud, YES/NO with a reason (and on YES the record is written before the issue closes) → issue closed → worktree removed, branch kept |
 
 Signals are recognized in **any language**. To invoke the skill explicitly: `/work-lifecycle:work-lifecycle`.
 
@@ -281,6 +281,7 @@ This plugin contains **no executable code** — no hooks, no scripts, no MCP ser
 | You declared a location (a Confluence space, say) but no record ever appears there | The skill checks a declared location at kickoff and reports what it could not reach — if you saw no such report, the destination was reached and the record carries a reference in the issue's result comment. If you did see one, connect the plugin/MCP for that destination and authenticate (`/mcp`); the skill will not write somewhere else on its own |
 | Project already has its own workflow skill or procedure document | They coexist; declare the canonical document in `CLAUDE.md` and it takes precedence over this skill |
 | Behavior seems to ignore your adapter values | The adapter is read from the `CLAUDE.md` of the project being worked on — or from the instruction file that project already uses (`AGENTS.md`, …). Check the values are in that file and unambiguous (exact commands, exact keys) |
+| Every task now ends with an incident verdict, and most of them are "NO" | That is the point. A rule phrased as *"if it was an incident, write one up"* lets the judgment be skipped silently, and a skipped judgment looks exactly like a NO — which is how two real incidents went unrecorded before this became a stated step. The NO costs one line; it is what makes the YES reliable |
 | Want to pause the skill temporarily | `/plugin disable work-lifecycle`, re-enable with `/plugin enable work-lifecycle` |
 
 ### Update / Uninstall
@@ -341,7 +342,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 
 모든 턴은 **분류**로 시작합니다: 질문은 조사·보고만(파일 무변경), 명시적 착수 신호("진행합시다", "구현해주세요")에만 작업 절차 진입, 잔손질(오탈자·수 줄)은 절차 생략 가능.
 
-작업이 시작되면: **작업 전**(fetch → 워크트리+브랜치 → 어댑터 확인 → 규모별 계획 → 트래커 이슈 → 이슈 키로 브랜치 rename) → **작업 중**(의미 단위 커밋, 내 파일만 스테이징, 매 커밋 push, 결정 사항 이슈 댓글) → **작업 후**(테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 사용자 승인 후 `--no-ff` 머지 → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존).
+작업이 시작되면: **작업 전**(fetch → 워크트리+브랜치 → 어댑터 확인 → 규모별 계획 → 트래커 이슈 → 이슈 키로 브랜치 rename) → **작업 중**(의미 단위 커밋, 내 파일만 스테이징, 매 커밋 push, 결정 사항 이슈 댓글) → **작업 후**(테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 사용자 승인 후 `--no-ff` 머지 → 사고성 판정 선언, YES 면 기록을 먼저 → 이슈 완료 → 워크트리 제거·브랜치 보존).
 
 > **절차의 정본은 [SKILL.md](skills/work-lifecycle/SKILL.md) 입니다** (본문은 영어). 사람이 읽을 수 있는 마크다운이면서 모델이 따르는 것 *그 자체*라, 명세와 동작이 같은 문서입니다. 이 README 는 절차를 중복 서술하지 않습니다 — 규칙이 궁금하면 SKILL.md 가 정답입니다.
 
@@ -386,7 +387,7 @@ Changelog: [CHANGELOG.md](CHANGELOG.md)
 |---|---|
 | 질문 — "로그인이 왜 실패하죠?", "가능해요?" | 조사와 보고. **파일을 건드리지 않습니다.** 수정안이 자명해도 지시 전에는 적용하지 않습니다 |
 | 착수 신호 — "진행합시다", "구현해주세요", "고쳐주세요" | *작업 전* 절차 실행: fetch → 워크트리+브랜치 → 어댑터 확인(미정 위치는 한 번 묻고, 선언된 위치는 도달 가능한지 확인) → 규모별 계획 → 트래커 이슈 생성·진행 중 전환 → 이슈 키로 브랜치 rename. 이후 *작업 중* 규율로 구현 |
-| 마무리 신호 — "머지", "완료 처리" | *작업 후* 절차 실행: 테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 머지(먼저 승인을 요청) → 이슈 완료 → 실제 피해가 있었던 작업이면 사고 기록 → 워크트리 제거·브랜치 보존 |
+| 마무리 신호 — "머지", "완료 처리" | *작업 후* 절차 실행: 테스트 게이트 → 실제 e2e 검증 → 문서 동기화 → 머지(먼저 승인을 요청) → 사고성 판정을 YES/NO + 근거로 소리 내어 선언(YES 면 이슈를 닫기 전에 기록을 먼저 씀) → 이슈 완료 → 워크트리 제거·브랜치 보존 |
 
 신호는 **언어 불문** 인식됩니다. 명시적으로 부르려면: `/work-lifecycle:work-lifecycle`.
 
@@ -575,6 +576,7 @@ Todo 를 택하거나 위임하면: B 와 같은 흐름이되 이슈 단계가 �
 | 위치를 선언했는데(예: Confluence 스페이스) 거기에 아무 기록도 안 생김 | skill 은 착수 시점에 선언된 위치를 확인하고 닿지 못한 대상을 보고합니다 — 그런 보고가 없었다면 목적지에는 닿았고, 기록의 참조가 이슈 결과 댓글에 실려 있습니다. 보고를 받았다면 해당 목적지의 플러그인/MCP 를 연결하고 인증(`/mcp`)하세요. skill 이 스스로 다른 곳에 쓰지는 않습니다 |
 | 프로젝트에 이미 자체 워크플로 skill·절차 문서가 있음 | 공존합니다. `CLAUDE.md` 에 정본 문서를 선언하면 그 문서가 이 skill 보다 우선합니다 |
 | 어댑터 값이 무시되는 것 같음 | 어댑터는 **작업 중인 프로젝트의** `CLAUDE.md` — 또는 그 프로젝트가 이미 쓰는 지시 파일(`AGENTS.md` 등) — 에서 읽습니다. 값이 그 파일에 있는지, 모호하지 않은지(정확한 명령어·키) 확인하세요 |
+| 이제 모든 작업 끝에 사고성 판정이 나오는데 대부분 "NO" 임 | 그게 목적입니다. *"사고성이면 기록한다"* 는 조건부 문장은 판정 자체를 조용히 생략할 수 있게 하고, **생략된 판정은 NO 와 구별되지 않습니다** — 실제로 그렇게 진짜 사고 2건이 기록되지 않았습니다. NO 는 한 줄이면 끝나고, 그 한 줄이 YES 를 믿을 수 있게 만듭니다 |
 | 일시적으로 끄고 싶음 | `/plugin disable work-lifecycle`, 다시 켜려면 `/plugin enable work-lifecycle` |
 
 ### 업데이트 / 제거
