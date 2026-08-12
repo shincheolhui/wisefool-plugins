@@ -10,7 +10,7 @@ The common procedure that every task follows — features, bugs, research, refac
 
 ## Project adapter — what to check in CLAUDE.md
 
-On activation, check the project's CLAUDE.md for the following. Every key is in one of three states — **declared** (follow it), **delegated** (the project explicitly hands the choice to you; decide, then report what you chose), or **undecided** (nothing written).
+On activation, check the project's CLAUDE.md for the following — or whatever file that project actually uses for agent instructions (`AGENTS.md`, `GEMINI.md`, and so on). Read and write the one that is already there; never create a second instruction file beside it. Every key is in one of three states — **declared** (follow it), **delegated** (the project explicitly hands the choice to you; decide, then report what you chose), or **undecided** (nothing written).
 
 For most keys, undecided simply means the default in the right-hand column. For **Issue tracker** and **Knowledge locations** — where the user's issues and knowledge are kept — undecided is **not** consent to decide for them: resolve it by asking, once (see "Bootstrapping an undecided key").
 
@@ -82,7 +82,7 @@ Writing todos or spec/plan documents is **not** a substantive work action (they 
 
 1. **Bring main up to date:** `git fetch origin` (required before creating the worktree).
 2. **Create the worktree and branch:** work in a worktree based on main. Keep the main working tree clean at all times. If the harness provides a worktree tool (e.g. `EnterWorktree`), use it and take its default location; otherwise create one under `.claude/worktrees/` — `git worktree add .claude/worktrees/<branch-name> -b <branch-name> origin/main`.
-3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores).
+3. **Temporary branch name:** `<prefix>/<kebab-case-task-name>` — `feature/` (feature) · `fix/` (defect) · `refactor/` (behavior preserved) · `docs/` (documentation) · `chore/` (chores). A worktree tool usually names the branch itself (`worktree-<name>` and the like); rename it with `git branch -m`. Its default **location** is taken as given; its **branch name** is not.
 4. **Pre-reads + adapter check:** explicitly Read the reference documents that the project's CLAUDE.md assigns to this kind of work, then read the adapter — resolve an undecided tracker or knowledge location by asking, and confirm that a declared one is reachable (both above).
 5. **Plan:** as prescribed by the task size table (todo / plan / brainstorm→spec→plan).
    - **Where the plan lives:** put spec/plan documents in the project's plan location. When that location is a repository path, write them inside the worktree and commit them there; when it is an external space, create them there. Either way they are planning artifacts, not implementation changes, so they may precede the issue. When no location is declared, do **not** invent a directory in that project — carry the plan in the issue description (or the todo list) instead.
