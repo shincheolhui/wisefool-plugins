@@ -1,5 +1,14 @@
 # Changelog
 
+## work-lifecycle 1.8.0 (2026-08-12)
+
+사고 기록 조항은 1.3.0 부터 있었다. 그런데도 실사용 프로젝트에서 **포스트모템 작성이 2회 누락**됐다 — 규칙도, 체크리스트도, 첫 누락 뒤 재발 방지 메모리까지 있는 상태에서. 조항이 아니라 **구조**가 문제였다. / The incident-record rule existed since 1.3.0, yet two real postmortems went unwritten anyway — with the rule, the checklist, and even a follow-up memory all in place. The defect was structural, not textual.
+
+- **사고성 판정을 명시 산출물로 (3.5 신설)** / The verdict is now a stated artifact — 종료 요약에 **"실제 피해가 있었는가? YES/NO + 근거 한 줄"** 을 반드시 말한다. `사고성이면 ~한다` 는 조건부 문장은 판정 자체를 생략해도 티가 나지 않고, **생략된 판정은 NO 와 구별되지 않는다.** An unstated verdict is not a NO; it is a skipped step.
+- **포스트모템을 이슈 종료의 선행 조건으로 (3.6 이동)** / The record now precedes closing — 기존에는 `이슈 종료 → 사고 기록` 순서라, 이슈가 닫히는 순간 "끝났다"가 되어 뒤 단계가 건너뛰어졌다. 이제 YES 면 **이슈를 닫기 전에** 기록이 완료된다. An issue that reads as done is the moment the record stops being written.
+- **템플릿도 프로젝트에 위임** / Template delegated too — 프로젝트가 정의한 대상·템플릿을 먼저 따르고, 없을 때만 기본 5단(`증상 → 원인 → 해결 → 재발 방지 → 관련 자산`)을 쓴다. The project's own target and template win; the built-in one is the fallback.
+- 이슈 종료가 3.5 → 3.7 로, 이후 단계가 재번호됐다 / Closing moved from step 5 to step 7; later steps renumbered.
+
 ## work-lifecycle 1.7.0 (2026-08-03)
 
 1.6.0 을 다른 프로젝트에서 처음 실사용한 결과에서 나온 수정이다. 둘 다 새 규칙이 아니라 **정본이 스스로 모순되거나 비워 둔 자리**를 메운 것이다. / Both fixes come from the first real use of 1.6.0 in another project — neither adds a rule; both close a place where the canon contradicted itself or said nothing.
